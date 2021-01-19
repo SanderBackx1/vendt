@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { CrudController } from "../CrudController";
-import { UserManager } from "../../managers/userManager";
 // import { User } from "../../interfaces/database";
 import { IUser, User, UserDocument } from "../../model/User";
 import RoleManager from "../../manager/RoleManager";
