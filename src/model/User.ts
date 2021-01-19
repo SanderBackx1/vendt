@@ -23,6 +23,7 @@ const UserSchema: Schema = new Schema({
   items_used: { type: Number, required: false },
   msid: { type: String, required: false },
   company: { type: String, required: false },
+  role: { type: String, required: true },
 });
 
 export const User: Model<UserDocument> = model("User", UserSchema);
