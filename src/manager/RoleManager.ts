@@ -42,8 +42,10 @@ export default class RoleManager {
   public async editRoleById(id: string, newValue: IRole) {
     const response = await Role.updateOne(
       { _id: id },
-      { $set: { ...newValue } }
+      { $set: { ...newValue } },
+      { new: true }
     );
+    this.retreiveRoles();
     return response;
   }
 }

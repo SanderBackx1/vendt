@@ -4,9 +4,11 @@ import { roleController } from "../../controllers/role/RoleController";
 export const router = express.Router({
   strict: true,
 });
-router.get("/", (req: Request, res: Response) => {
+router.get("/", async (req: Request, res: Response) => {
+  console.log("reading role");
+
   try {
-    roleController.read(req, res);
+    await roleController.read(req, res);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

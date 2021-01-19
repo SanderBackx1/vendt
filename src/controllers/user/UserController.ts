@@ -17,7 +17,7 @@ class UserController extends CrudController {
       if (!firstname) throw new Error("firstname not found");
       if (!role) throw new Error("role not found");
 
-      const maxItems = roleManager.getRoleById(role)?.maxItems;
+      const maxItems = roleManager.getRoleById(role)?.defaultMaxItems;
       const user: IUser = {
         company,
         firstname,
