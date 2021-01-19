@@ -10,49 +10,44 @@ const roleManager = RoleManager.Instance;
 
 class UserController extends CrudController {
   public async create(req: Request, res: Response) {
-    const { company, firstname, role } = req.body;
+    try {
+      const { company, firstname, role } = req.body;
 
-    if (!company) throw new Error("company not found");
-    if (!firstname) throw new Error("firstname not found");
-    if (!role) throw new Error("role not found");
+      if (!company) throw new Error("company not found");
+      if (!firstname) throw new Error("firstname not found");
+      if (!role) throw new Error("role not found");
 
-    const user: IUser = {
-      // id: `randomid${Math.round(Math.random() * 200)}`,
-      company,
-      firstname,
-      max_items: 20, //Get max items from company
-      role,
-      date_created: new Date().getTime(),
-      date_updated: new Date().getTime(),
-      items_used: 0,
-      // lastname
-      //  msid
-      // rfid
-    };
+      const maxItems = roleManager.getRoleById(role)?.maxItems;
+      const user: IUser = {
+        company,
+        firstname,
+        maxItems: maxItems ? maxItems : 0, //Get max items from company
+        role,
+        itemsUsed: 0,
+      };
 
-    if (req.body.lastname) user.lastname = req.body.lastname;
-    if (req.body.msid) user.msid = req.body.msid;
-    if (req.body.rfid) user.rfid = req.body.rfid;
+      if (req.body.lastname) user.lastname = req.body.lastname;
+      if (req.body.msid) user.msid = req.body.msid;
+      if (req.body.rfid) user.rfid = req.body.rfid;
 
-    // userManager.addUser(user);
-
-    const doc = new User(user);
-    const response = await doc.save();
-    // const u: UserDocument = await User.create(user);
-
-    console.log("done");
-    res.json(response);
-
-    // throw new Error("Method not implemented yet");
+      const doc = new User(user);
+      const response = await doc.save();
+      // const u: UserDocument = await User.create(user);
+      console.log("done");
+      res.json(response);
+    } catch (err) {
+      throw err;
+    }
   }
-  public read(req: Request, res: Response) {
-    const { uid, id } = req.body;
-
-    const idToFind = id ? id : uid;
-
-    const user = User.findById(idToFind);
-
-    res.json(user);
+  public async read(req: Request, res: Response) {
+    try {
+      const { uid, id } = req.body;
+      const idToFind = id ? id : uid;
+      const user = await User.findById(idToFind);
+      res.json(user);
+    } catch (err) {
+      throw err;
+    }
   }
   public update(req: Request, res: Response) {
     throw new Error("Method not implemented yet");
@@ -60,8 +55,13 @@ class UserController extends CrudController {
   public delete(req: Request, res: Response) {
     throw new Error("Method not implemented yet");
   }
-  public readAll(req: Request, res: Response) {
-    throw new Error("Method not implemented yet");
+  public async readAll(req: Request, res: Response) {
+    try {
+      const response = await User.find();
+      res.json(response);
+    } catch (err) {
+      throw err;
+    }
   }
 }
 export const userController = new UserController();

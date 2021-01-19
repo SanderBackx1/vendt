@@ -13,6 +13,7 @@ export interface IRole {
   permissions: Permissions;
   name: string;
   company: string;
+  maxItems: number;
 }
 
 export interface RoleDocument extends IRole, Document {}
