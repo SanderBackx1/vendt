@@ -3,6 +3,7 @@ import { CrudController } from "../CrudController";
 // import { User } from "../../interfaces/database";
 import { IUser, User, UserDocument } from "../../model/User";
 import RoleManager from "../../manager/RoleManager";
+import { Types } from "mongoose";
 
 // const userManager = UserManager.Instance;
 const roleManager = RoleManager.Instance;
@@ -42,8 +43,12 @@ class UserController extends CrudController {
     try {
       const { uid, id } = req.body;
       const idToFind = id ? id : uid;
-      const user = await User.findById(idToFind);
-      res.json(user);
+      if (Types.ObjectId.isValid(idToFind)) {
+        const user = await User.findById({ _id: idToFind });
+        res.json(user);
+      } else {
+        res.status(401).json({ error: "Bad id" });
+      }
     } catch (err) {
       throw err;
     }
