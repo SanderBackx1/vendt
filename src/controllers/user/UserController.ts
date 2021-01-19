@@ -3,8 +3,10 @@ import { CrudController } from "../CrudController";
 import { UserManager } from "../../managers/userManager";
 // import { User } from "../../interfaces/database";
 import { IUser, User, UserDocument } from "../../model/User";
+import RoleManager from "../../manager/RoleManager";
 
-const userManager = UserManager.Instance;
+// const userManager = UserManager.Instance;
+const roleManager = RoleManager.Instance;
 
 class UserController extends CrudController {
   public async create(req: Request, res: Response) {
@@ -59,8 +61,7 @@ class UserController extends CrudController {
     throw new Error("Method not implemented yet");
   }
   public readAll(req: Request, res: Response) {
-    const users = userManager.getAll();
-    res.json(users);
+    throw new Error("Method not implemented yet");
   }
 }
 export const userController = new UserController();

@@ -9,13 +9,13 @@ export interface Permissions {
   global: boolean;
 }
 
-export interface Role {
+export interface IRole {
   permissions: Permissions;
   name: string;
   company: string;
 }
 
-export interface RoleDocument extends Role, Document {}
+export interface RoleDocument extends IRole, Document {}
 
 const RoleSchema: Schema = new Schema({
   permissions: {
@@ -28,3 +28,4 @@ const RoleSchema: Schema = new Schema({
   name: { type: String, required: true },
   company: { type: String, required: true },
 });
+export const Role: Model<RoleDocument> = model("Role", RoleSchema);

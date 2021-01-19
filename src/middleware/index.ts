@@ -44,7 +44,7 @@ import { IUser, User, UserDocument } from "../model/User";
 // };
 // const roles = [role1, role2];
 
-export const writeUsers = (req: Request, res: Response, next: Function) => {
+export const writeUsers = (req: Request, res: Response, next: NextFunction) => {
   const { uid } = req.body;
   try {
     if (!uid) {
