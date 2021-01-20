@@ -23,8 +23,10 @@ export default class RoleManager {
     return this.roles;
   }
 
-  public getRoleById(id: string) {
-    return this.roles.find((role: RoleDocument) => role._id == id);
+  public getRoleById(id: string, company: string) {
+    return this.roles
+      .filter((role: RoleDocument) => role.company == company)
+      .find((role: RoleDocument) => role._id == id);
   }
 
   public async newRole(role: IRole) {

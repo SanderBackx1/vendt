@@ -1,5 +1,7 @@
 import { router as userRouter } from "./user/user";
 import { router as roleRouter } from "./role/role";
+import { router as companyRouter } from "./company/company";
+
 import express, { Request, Response } from "express";
 
 import { Router } from "express";
@@ -9,3 +11,4 @@ router.get("/", (req: Request, res: Response) => {
 });
 router.use("/user", userRouter);
 router.use("/role", roleRouter);
+router.use("/company", companyRouter);

@@ -51,18 +51,11 @@ export const writeUsers = async (
 ) => {
   const { uid, company } = req.body;
   try {
-    // if (!uid) {
-    //   throw new Error("No uid");
-    // }
-    // if (!company) throw new Error("no company");
-    // if (!Types.ObjectId.isValid(uid)) throw new Error("uid not valid");
-    // if (!Types.ObjectId.isValid(company)) throw new Error("uid not valid");
-
     const user = await User.findById(uid);
     if (!user) {
       throw new Error("Uid not found");
     }
-    const role = roleManager.getRoleById(user.role);
+    const role = roleManager.getRoleById(user.role, company);
     if (role && role.permissions.users == "write") {
       next();
     } else {
@@ -77,19 +70,13 @@ export const readUsers = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { uid } = req.body;
+  const { uid, company } = req.body;
   try {
-    if (!uid) {
-      throw new Error("No uid");
-    }
-
-    if (!Types.ObjectId.isValid(uid)) throw new Error("uid not valid");
-
     const user = await User.findById(uid);
     if (!user) {
       throw new Error("Uid not found");
     }
-    const role = roleManager.getRoleById(user.role);
+    const role = roleManager.getRoleById(user.role, company);
     if (
       role &&
       (role.permissions.users == "read" || role.permissions.users == "write")
