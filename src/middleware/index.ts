@@ -44,7 +44,28 @@ export const secured = async (
     res.status(401).json({ error: err.message });
   }
 };
-
+export const globalCompanyWrite = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { uid, company, role } = req.body;
+    const r = role
+      ? roleManager.getRoleById(role, company)
+      : User.findOne({ _id: uid })?.role;
+    console.log(r);
+    if (r && r.permissions.company == "write" && r.permissions.global) {
+      next();
+    } else if (r && r.permissions.company == "write" && !r.permissions.global) {
+      throw new Error("user has no global write rights");
+    } else if (r && r.permissions.company != "write") {
+      throw new Error("user has no company write rights");
+    }
+  } catch (err) {
+    res.status(401).json({ error: err.message });
+  }
+};
 export const writeUsers = async (
   req: Request,
   res: Response,
