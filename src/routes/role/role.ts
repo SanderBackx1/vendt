@@ -17,16 +17,16 @@ router.get("/", async (req: Request, res: Response) => {
     res.status(400).json({ error: err.message });
   }
 });
-router.post("/", writeUsers, (req: Request, res: Response) => {
+router.post("/", writeUsers, async (req: Request, res: Response) => {
   try {
-    roleController.create(req, res);
+    await roleController.create(req, res);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
-router.post("/delete", readUsers, (req: Request, res: Response) => {
+router.post("/delete", readUsers, async (req: Request, res: Response) => {
   try {
-    roleController.delete(req, res);
+    await roleController.delete(req, res);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
