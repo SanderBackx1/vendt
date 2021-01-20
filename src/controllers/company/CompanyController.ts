@@ -7,6 +7,9 @@ import { User } from "../../model/User";
 
 const roleManager = RoleManager.Instance;
 class CompanyController extends CrudController {
+  constructor() {
+    super();
+  }
   public async create(req: Request, res: Response) {
     const { uid, role, company } = req.body;
     const { name, location, ttl, layout, id } = req.body.qry;

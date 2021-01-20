@@ -7,6 +7,9 @@ import { Types } from "mongoose";
 const roleManager = RoleManager.Instance;
 
 class RoleController extends CrudController {
+  constructor() {
+    super();
+  }
   public async create(req: Request, res: Response) {
     if (req.body.id) {
       this.update(req, res);

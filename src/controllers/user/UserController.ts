@@ -9,6 +9,9 @@ import { Types } from "mongoose";
 const roleManager = RoleManager.Instance;
 
 class UserController extends CrudController {
+  constructor() {
+    super();
+  }
   public async create(req: Request, res: Response) {
     try {
       const { company } = req.body;
