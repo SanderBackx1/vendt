@@ -74,9 +74,17 @@ class UserController extends CrudController {
     const response = await User.updateOne({ _id: id }, { ...user });
     res.json(response);
   }
-  public delete(req: Request, res: Response) {
-    throw new Error("Method not implemented yet");
+  public async delete(req: Request, res: Response) {
+    const { id } = req.body;
+    if (!id) throw new Error("No id found");
+    if (Types.ObjectId.isValid(id)) {
+      const response = await User.findOneAndDelete({ _id: id });
+      res.json(response);
+    } else {
+      throw new Error("id not valid");
+    }
   }
+
   public async readAll(req: Request, res: Response) {
     try {
       const response = await User.find();

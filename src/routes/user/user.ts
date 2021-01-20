@@ -1,4 +1,5 @@
 import express, { Request, Response } from "express";
+import { write } from "fs";
 import { userController } from "../../controllers/user/UserController";
 
 import { writeUsers, readUsers } from "../../middleware";
@@ -30,6 +31,14 @@ router.get("/all", async (req: Request, res: Response) => {
 router.post("/", writeUsers, async (req: Request, res: Response) => {
   try {
     await userController.create(req, res);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+router.post("/delete", writeUsers, async (req: Request, res: Response) => {
+  try {
+    await userController.delete(req, res);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
