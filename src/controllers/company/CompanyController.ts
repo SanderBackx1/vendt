@@ -3,7 +3,7 @@ import { CrudController } from "../CrudController";
 import { isILocation, isILayout, ICompany, Company } from "../../model/Company";
 class CompanyController extends CrudController {
   public async create(req: Request, res: Response) {
-    const { name, location, ttl, layout } = req.body;
+    const { name, location, ttl, layout } = req.body.qry;
     if (!name) throw new Error("name is required");
     if (!location) throw new Error("name is required");
     if (!isILocation(location)) throw new Error("Location is not valid");
