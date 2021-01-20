@@ -6,6 +6,7 @@ export interface IPermissions {
   users: Permission;
   machines: Permission;
   alerts: Permission;
+  general: Permission;
   global: boolean;
 }
 
@@ -14,7 +15,8 @@ export function isIPermissions(object: any): object is IPermissions {
     "users" in object &&
     "machines" in object &&
     "alerts" in object &&
-    "global" in object
+    "global" in object &&
+    "general" in object
   );
 }
 export interface IRole {
@@ -31,6 +33,7 @@ const RoleSchema: Schema = new Schema({
     users: { type: String, required: true },
     machines: { type: String, required: true },
     alerts: { type: String, required: true },
+    general: { type: String, required: true },
     global: { type: Boolean, default: false },
   },
   defaultMaxItems: { type: Number, required: true },
