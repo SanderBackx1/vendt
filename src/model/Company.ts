@@ -66,4 +66,4 @@ const companySchema: Schema = new Schema({
   },
 });
 
-const Company: Model<CompanyDocument> = model("Company", companySchema);
+export const Company: Model<CompanyDocument> = model("Company", companySchema);
