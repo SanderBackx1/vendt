@@ -6,7 +6,8 @@ export interface IPermissions {
   users: Permission;
   machines: Permission;
   alerts: Permission;
-  general: Permission;
+  company: Permission;
+  inquiry: Permission;
   global: boolean;
 }
 
@@ -16,7 +17,8 @@ export function isIPermissions(object: any): object is IPermissions {
     "machines" in object &&
     "alerts" in object &&
     "global" in object &&
-    "general" in object
+    "company" in object &&
+    "inquiry" in object
   );
 }
 export interface IRole {
@@ -24,6 +26,7 @@ export interface IRole {
   name: string;
   company: string;
   defaultMaxItems: number;
+  subscriptionOnTags: string[];
 }
 
 export interface RoleDocument extends IRole, Document {}
@@ -33,11 +36,13 @@ const RoleSchema: Schema = new Schema({
     users: { type: String, required: true },
     machines: { type: String, required: true },
     alerts: { type: String, required: true },
-    general: { type: String, required: true },
+    company: { type: String, required: true },
+    inquiry: { type: String, required: true },
     global: { type: Boolean, default: false },
   },
   defaultMaxItems: { type: Number, required: true },
   name: { type: String, required: true },
   company: { type: String, required: true },
+  subscriptionOnTags: { type: [String], required: true },
 });
 export const Role: Model<RoleDocument> = model("Role", RoleSchema);

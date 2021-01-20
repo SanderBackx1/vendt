@@ -11,11 +11,19 @@ class RoleController extends CrudController {
     if (req.body.id) {
       this.update(req, res);
     } else {
-      const { name, defaultMaxItems, company, permissions } = req.body;
+      const {
+        name,
+        defaultMaxItems,
+        company,
+        permissions,
+        subscriptionOnTags,
+      } = req.body;
       if (!name) throw new Error("name is required");
       if (!defaultMaxItems) throw new Error("defaultMaxItems is required");
       if (!permissions) throw new Error("permissions is required");
       if (!company) throw new Error("company is required");
+      if (!subscriptionOnTags)
+        throw new Error("subscriptionOnTags is required");
       if (!isIPermissions(permissions))
         throw new Error("permissions is not valid");
 
@@ -24,6 +32,7 @@ class RoleController extends CrudController {
         defaultMaxItems,
         name,
         permissions,
+        subscriptionOnTags,
       };
       const response = await roleManager.newRole(role);
       res.json(response);
@@ -49,12 +58,19 @@ class RoleController extends CrudController {
   public async update(req: Request, res: Response) {
     const { id } = req.body;
     if (Types.ObjectId.isValid(id)) {
-      const { name, defaultMaxItems, company, permissions } = req.body;
+      const {
+        name,
+        defaultMaxItems,
+        company,
+        permissions,
+        subscriptionOnTags,
+      } = req.body;
       const role: IRole = {
         company,
         defaultMaxItems,
         name,
         permissions,
+        subscriptionOnTags,
       };
       const response = await roleManager.editRoleById(id, role);
       res.json(response);
