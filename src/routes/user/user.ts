@@ -9,17 +9,17 @@ export const router = express.Router({
 
 //USER READ RIGHTS NEEDED
 //-----------------------
-router.get("/", readUsers, (req: Request, res: Response) => {
+router.get("/", readUsers, async (req: Request, res: Response) => {
   try {
-    userController.read(req, res);
+    await userController.read(req, res);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 //-----------------------
-router.get("/all", (req: Request, res: Response) => {
+router.get("/all", async (req: Request, res: Response) => {
   try {
-    userController.readAll(req, res);
+    await userController.readAll(req, res);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -27,9 +27,9 @@ router.get("/all", (req: Request, res: Response) => {
 //-----------------------
 //USER WRITE RIGHTS NEEDED
 //-----------------------
-router.post("/", writeUsers, (req: Request, res: Response) => {
+router.post("/", writeUsers, async (req: Request, res: Response) => {
   try {
-    userController.create(req, res);
+    await userController.create(req, res);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -37,9 +37,9 @@ router.post("/", writeUsers, (req: Request, res: Response) => {
 //-----------------------
 //GENERAL USER
 //-------------
-router.get("/me", (req: Request, res: Response) => {
+router.get("/me", async (req: Request, res: Response) => {
   try {
-    userController.read(req, res);
+    await userController.read(req, res);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
