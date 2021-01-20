@@ -1,5 +1,4 @@
 import express, { Request, Response } from "express";
-import { write } from "fs";
 import { userController } from "../../controllers/user/UserController";
 
 import { writeUsers, readUsers, secured } from "../../middleware";
