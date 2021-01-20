@@ -25,7 +25,7 @@ export const writeUsers = async (
       throw new Error("User has no access");
     }
   } catch (err) {
-    res.status(401).json({ error: err.message });
+    throw err;
   }
 };
 export const readUsers = async (
@@ -53,6 +53,6 @@ export const readUsers = async (
       throw new Error("User has no access");
     }
   } catch (err) {
-    res.status(401).json({ error: err.message });
+    throw err;
   }
 };
