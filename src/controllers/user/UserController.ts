@@ -17,6 +17,10 @@ class UserController extends CrudController {
       if (!firstname) throw new Error("firstname not found");
       if (!role) throw new Error("role not found");
 
+      if (req.body.id) {
+        return await this.update(req, res);
+      }
+
       const maxItems = roleManager.getRoleById(role)?.defaultMaxItems;
       const user: IUser = {
         company,
@@ -53,8 +57,22 @@ class UserController extends CrudController {
       throw err;
     }
   }
-  public update(req: Request, res: Response) {
-    throw new Error("Method not implemented yet");
+  public async update(req: Request, res: Response) {
+    const { id, company, firstname, role } = req.body;
+    const maxItems = roleManager.getRoleById(role)?.defaultMaxItems;
+    const user: IUser = {
+      company,
+      firstname,
+      maxItems: maxItems ? maxItems : 0, //Get max items from company
+      role,
+      itemsUsed: 0,
+    };
+
+    if (req.body.lastname) user.lastname = req.body.lastname;
+    if (req.body.msid) user.msid = req.body.msid;
+    if (req.body.rfid) user.rfid = req.body.rfid;
+    const response = await User.updateOne({ _id: id }, { ...user });
+    res.json(response);
   }
   public delete(req: Request, res: Response) {
     throw new Error("Method not implemented yet");
