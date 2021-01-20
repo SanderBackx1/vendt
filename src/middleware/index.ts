@@ -1,6 +1,7 @@
 import express, { NextFunction, Request, Response } from "express";
 import { IUser, User, UserDocument } from "../model/User";
 import RoleManager from "../manager/RoleManager";
+import { Types } from "mongoose";
 
 const roleManager = RoleManager.Instance;
 
@@ -14,6 +15,8 @@ export const writeUsers = async (
     if (!uid) {
       throw new Error("No uid");
     }
+    if (!Types.ObjectId.isValid(uid)) throw new Error("uid not valid");
+
     const user = await User.findById(uid);
     if (!user) {
       throw new Error("Uid not found");
@@ -38,6 +41,8 @@ export const readUsers = async (
     if (!uid) {
       throw new Error("No uid");
     }
+
+    if (!Types.ObjectId.isValid(uid)) throw new Error("uid not valid");
 
     const user = await User.findById(uid);
     if (!user) {
