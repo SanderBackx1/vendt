@@ -72,6 +72,10 @@ class RoleController extends CrudController {
       throw new Error("id is not valid");
     }
   }
+  public async readAll(req: Request, res: Response) {
+    const response = await roleManager.getAll();
+    res.json(response);
+  }
 }
 
 export const roleController = new RoleController();

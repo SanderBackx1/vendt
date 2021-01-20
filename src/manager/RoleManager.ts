@@ -48,4 +48,8 @@ export default class RoleManager {
     this.retreiveRoles();
     return response;
   }
+  public async getAll() {
+    const response = await Role.find();
+    return response;
+  }
 }

@@ -15,6 +15,13 @@ router.get("/", async (req: Request, res: Response) => {
     res.status(400).json({ error: err.message });
   }
 });
+router.get("/all", async (req: Request, res: Response) => {
+  try {
+    await roleController.readAll(req, res);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
 router.post("/", writeUsers, async (req: Request, res: Response) => {
   try {
     await roleController.create(req, res);

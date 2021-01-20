@@ -28,5 +28,7 @@ perfix `/role`
 | :----: | :-----: | :-------------------------------------------------------------------------------------------------------------: | :-----: | :-----------------------: |
 |  POST  |    /    |       required <ul><li>`name`</li><li>`defaultMaxItems`</li><li>`permissions`</li><li>`company`</li><ul>        |  Write  | Maakt een nieuwe role aan |
 |  POST  |    /    | required <ul><li>`id`</li><li>`name`</li><li>`defaultMaxItems`</li><li>`permissions`</li><li>`company`</li><ul> |  Write  |  Update een role via id   |
-|  GET   |    /    |                                         required <ul><li>`id`</li><ul>                                          |         |    get een role via id    |
 |  POST  | /delete |                                          required <ul><li>id</li><ul>                                           |  Write  |  delete een role via id   |
+|  GET   |    /    |                                         required <ul><li>`id`</li><ul>                                          |         |    get een role via id    |
+|  GET   |  /all   |                                                                                                                 |         |    verkrijg alle roles    |
+
