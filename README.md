@@ -1,5 +1,14 @@
 # Back end system
 
+## Todo
+- add tags to roles
+- company middleware
+- company crud
+- add imageUrl to company
+- inquiries
+- alerts crud
+- user login
+
 prefix `/api`
 
 Als er rechten nodig zijn, verstuur ook altijd 'uid' met de ingelogde gebruiker zijn id.
