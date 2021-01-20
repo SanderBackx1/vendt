@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node dist/server.js",
     "now": "npx ts-node src/terver.ts",
-    "dev": "nodemon src/server.ts"
+    "dev": "nodemon src/server.ts",
+    "build":"tsc -p ."
   },
   "author": "",
   "license": "ISC",
