@@ -15,6 +15,28 @@ interface ILayout {
   okTakeOutsuccessful: string;
   errGeneralFailure: string;
 }
+
+export function isILocation(object: any): object is ILocation {
+  return (
+    "street" in object &&
+    "number" in object &&
+    "city" in object &&
+    "zip" in object &&
+    "country" in object
+  );
+}
+export function isILayout(object: any): object is ILayout {
+  return (
+    "title" in object &&
+    "motd" in object &&
+    "errQrNotValid" in object &&
+    "errExceededMaxItems" in object &&
+    "okTakeOutNow" in object &&
+    "okTakeOutsuccessful" in object &&
+    "errGeneralFailure" in object
+  );
+}
+
 export interface ICompany {
   name: string;
   location: ILocation;
