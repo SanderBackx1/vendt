@@ -54,7 +54,6 @@ export const globalCompanyWrite = async (
     const r = role
       ? roleManager.getRoleById(role, company)
       : User.findOne({ _id: uid })?.role;
-    console.log(r);
     if (r && r.permissions.company == "write" && r.permissions.global) {
       next();
     } else if (r && r.permissions.company == "write" && !r.permissions.global) {

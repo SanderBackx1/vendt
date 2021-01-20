@@ -6,7 +6,7 @@ export const router = express.Router({
   strict: true,
 });
 
-router.get("/", async (req: Request, res: Response) => {
+router.get("/", secured, hasQuery, async (req: Request, res: Response) => {
   try {
     await companyController.read(req, res);
   } catch (err) {
