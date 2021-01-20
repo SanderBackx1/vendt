@@ -8,7 +8,8 @@ import { User } from "../../model/User";
 const roleManager = RoleManager.Instance;
 class CompanyController extends CrudController {
   public async create(req: Request, res: Response) {
-    const { name, location, ttl, layout } = req.body.qry;
+    const { uid, role, company } = req.body;
+    const { name, location, ttl, layout, id } = req.body.qry;
     if (!name) throw new Error("name is required");
     if (!location) throw new Error("name is required");
     if (!isILocation(location)) throw new Error("Location is not valid");
@@ -16,13 +17,24 @@ class CompanyController extends CrudController {
     if (!layout) throw new Error("name is required");
     if (!isILayout(layout)) throw new Error("Layout is not valid");
 
-    const company: ICompany = {
+    if (id) {
+      return await this.update(req, res);
+    }
+    const r = roleManager.getRoleById(
+      role || User.findOne({ _id: uid }),
+      company
+    );
+    if (!r || r.permissions.company != "write" || !r.permissions.global) {
+      throw new Error("User has insufficient rights");
+    }
+
+    const newCompany: ICompany = {
       name,
       location,
       ttl,
       layout,
     };
-    const response = await Company.create(company);
+    const response = await Company.create(newCompany);
     res.json(response);
   }
   public async read(req: Request, res: Response) {
@@ -53,7 +65,27 @@ class CompanyController extends CrudController {
     }
   }
   public async update(req: Request, res: Response) {
-    throw new Error("Not implemented yet");
+    const { uid, role, company } = req.body;
+    const { name, location, ttl, layout, id } = req.body.qry;
+
+    const newCompany: ICompany = {
+      name,
+      location,
+      ttl,
+      layout,
+    };
+    if (company != id) {
+      const r = roleManager.getRoleById(
+        role || User.findOne({ _id: uid })?.role,
+        company
+      );
+      if (!r || r.permissions.company != "write" || !r.permissions.global) {
+        throw new Error("User has insufficient rights");
+      }
+    }
+
+    const response = await Company.updateOne({ _id: id }, { ...newCompany });
+    res.json(response);
   }
   public async delete(req: Request, res: Response) {
     throw new Error("Not implemented yet");
