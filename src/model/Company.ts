@@ -12,7 +12,7 @@ interface ILayout {
   errQrNotValid: string;
   errExceededMaxItems: string;
   okTakeOutNow: string;
-  okTakeOutsuccessful: string;
+  okTakeOutSuccessful: string;
   errGeneralFailure: string;
 }
 
@@ -32,7 +32,7 @@ export function isILayout(object: any): object is ILayout {
     "errQrNotValid" in object &&
     "errExceededMaxItems" in object &&
     "okTakeOutNow" in object &&
-    "okTakeOutsuccessful" in object &&
+    "okTakeOutSuccessful" in object &&
     "errGeneralFailure" in object
   );
 }
@@ -61,7 +61,7 @@ const companySchema: Schema = new Schema({
     errQrNotValid: { type: String, required: true },
     errExceededMaxItems: { type: String, required: true },
     okTakeOutNow: { type: String, required: true },
-    okTakeOutsuccessful: { type: String, required: true },
+    okTakeOutSuccessful: { type: String, required: true },
     errGeneralFailure: { type: String, required: true },
   },
 });
