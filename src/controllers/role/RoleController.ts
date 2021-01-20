@@ -42,6 +42,7 @@ class RoleController extends CrudController {
   }
   public async read(req: Request, res: Response) {
     try {
+      console.log(req.body.role);
       const { company } = req.body;
       const { id } = req.body.qry;
       if (!id) throw new Error("No id found");

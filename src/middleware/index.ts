@@ -34,8 +34,9 @@ export const secured = async (
     //check if valid user
     const user = await User.findOne({ _id: uid });
     if (!user) throw new Error("User not found");
+    req.body.role = user.role;
     //check if valid company
-    const copmany = await Company.findOne({ _id: uid });
+    const copmany = await Company.findOne({ _id: company });
     if (!copmany) throw new Error("Company not found");
 
     next();
@@ -49,17 +50,24 @@ export const writeUsers = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { uid, company } = req.body;
   try {
-    const user = await User.findById(uid);
-    if (!user) {
-      throw new Error("Uid not found");
-    }
-    const role = roleManager.getRoleById(user.role, company);
-    if (role && role.permissions.users == "write") {
-      next();
+    const { uid, company, role } = req.body;
+    if (role) {
+      const r = roleManager.getRoleById(role, company);
+      if (r && r.permissions.users == "write") {
+        next();
+      }
     } else {
-      throw new Error("User has no access");
+      const user = await User.findById(uid);
+      if (!user) {
+        throw new Error("Uid not found");
+      }
+      const r = roleManager.getRoleById(user.role, company);
+      if (r && r.permissions.users == "write") {
+        next();
+      } else {
+        throw new Error("User has no access");
+      }
     }
   } catch (err) {
     res.status(401).json({ error: err.message });
@@ -70,20 +78,32 @@ export const readUsers = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { uid, company } = req.body;
   try {
-    const user = await User.findById(uid);
-    if (!user) {
-      throw new Error("Uid not found");
-    }
-    const role = roleManager.getRoleById(user.role, company);
-    if (
-      role &&
-      (role.permissions.users == "read" || role.permissions.users == "write")
-    ) {
-      next();
+    const { uid, company, role } = req.body;
+    if (role) {
+      const r = roleManager.getRoleById(role, company);
+      if (
+        (r && r.permissions.users == "read") ||
+        r?.permissions.users == "write"
+      ) {
+        console.log("next");
+        next();
+      }
     } else {
-      throw new Error("User has no access");
+      console.log("reading user");
+      const user = await User.findById(uid);
+      if (!user) {
+        throw new Error("Uid not found");
+      }
+      const r = roleManager.getRoleById(user.role, company);
+      if (
+        r &&
+        (r.permissions.users == "read" || r.permissions.users == "write")
+      ) {
+        next();
+      } else {
+        throw new Error("User has no access");
+      }
     }
   } catch (err) {
     res.status(401).json({ error: err.message });
