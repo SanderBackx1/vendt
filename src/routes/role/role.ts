@@ -9,8 +9,6 @@ export const router = express.Router({
   strict: true,
 });
 router.get("/", async (req: Request, res: Response) => {
-  console.log("reading role");
-
   try {
     await roleController.read(req, res);
   } catch (err) {
