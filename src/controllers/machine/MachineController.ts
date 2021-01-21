@@ -22,7 +22,6 @@ class MachineController extends CrudController {
       maxStock,
       status,
       lastService,
-      id,
     } = req.body.qry;
     if (!name) throw new Error("name is required");
     if (!location) throw new Error("location is required");
@@ -55,21 +54,6 @@ class MachineController extends CrudController {
     const { id, fromCompany } = req.body.qry;
 
     if (!id) throw new Error("id is required");
-    if (fromCompany) {
-      const r = roleManager.getRoleById(
-        role || (await User.findOne({ _id: uid }).role),
-        company
-      );
-      if (
-        !r ||
-        !(
-          r.permissions.machines == "read" || r.permissions.machines == "write"
-        ) ||
-        !r.permissions.global
-      ) {
-        throw new Error("User has insufficient rights");
-      }
-    }
     const response = await Machine.findOne({
       _id: id,
       company: fromCompany || company,
@@ -77,18 +61,8 @@ class MachineController extends CrudController {
     res.json(response);
   }
   public async readAll(req: Request, res: Response) {
-    const { uid, company, role, fromCompany } = req.body;
+    const { company, fromCompany } = req.body;
 
-    const r = roleManager.getRoleById(
-      role || (await User.findOne({ _id: uid, company }).role),
-      company
-    );
-    if (
-      !r ||
-      !(r.permissions.machines == "read" || r.permissions.machines == "write")
-    ) {
-      throw new Error("User has insufficient rights");
-    }
     const response = await Machine.find({
       company: fromCompany || company,
     });
@@ -107,14 +81,6 @@ class MachineController extends CrudController {
       id,
       layout,
     } = qry;
-
-    const r = roleManager.getRoleById(
-      role || User.findOne({ _id: uid, company })?.role,
-      company
-    );
-    if (!r || r.permissions.machines != "write") {
-      throw new Error("User has no machine write rights");
-    }
 
     const previous = await Machine.findOne({
       _id: id,
@@ -148,14 +114,6 @@ class MachineController extends CrudController {
   public async delete(req: Request, res: Response) {
     const { uid, company, fromCompany, role, qry } = req.body;
     const { id } = qry;
-
-    const r = roleManager.getRoleById(
-      role || (await User.findOne({ _id: uid, company })),
-      company
-    );
-    if (!r || r.permissions.machines != "write") {
-      throw new Error("User has no write permission");
-    }
 
     const response = await Machine.deleteOne({
       _id: id,

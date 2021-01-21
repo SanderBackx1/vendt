@@ -183,6 +183,49 @@ export const readCompany = async (
   }
 };
 
+export const writeMachine = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { uid, company, role } = req.body;
+    const r = roleManager.getRoleById(
+      role || (await User.findOne({ _id: uid, company })?.role),
+      company
+    );
+    if (!r || r.permissions.company != "write") {
+      throw new Error("User has no machine write rights");
+    }
+    next();
+  } catch (err) {
+    res.json(401).json({ error: err.message });
+  }
+};
+
+export const readMachine = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { uid, company, role } = req.body;
+    const r = roleManager.getRoleById(
+      role || (await User.findOne({ _id: uid, company })?.role),
+      company
+    );
+    if (
+      !r ||
+      !(r.permissions.company == "read" || r.permissions.company == "write")
+    ) {
+      throw new Error("User has no machine write rights");
+    }
+    next();
+  } catch (err) {
+    res.json(401).json({ error: err.message });
+  }
+};
+
 export const checkIfUpdate = (
   req: Request,
   res: Response,
