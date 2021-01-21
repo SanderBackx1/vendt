@@ -5,6 +5,7 @@ import { isILocation, isILayout } from "../../model/sharedInterfaces";
 import RoleManager from "../../manager/RoleManager";
 import { Types } from "mongoose";
 import { User } from "../../model/User";
+import filter from "../../helpers/filter";
 
 const roleManager = RoleManager.Instance;
 class CompanyController extends CrudController {
@@ -12,7 +13,6 @@ class CompanyController extends CrudController {
     super();
   }
   public async create(req: Request, res: Response) {
-    const { uid, role, company } = req.body;
     const { name, location, ttl, layout, id, imageURL } = req.body.qry;
     if (!name) throw new Error("name is required");
     if (!location) throw new Error("name is required");
@@ -20,17 +20,6 @@ class CompanyController extends CrudController {
     if (!ttl) throw new Error("name is required");
     if (!layout) throw new Error("name is required");
     if (!isILayout(layout)) throw new Error("Layout is not valid");
-
-    if (id) {
-      return await this.update(req, res);
-    }
-    const r = roleManager.getRoleById(
-      role || User.findOne({ _id: uid }),
-      company
-    );
-    if (!r || r.permissions.company != "write" || !r.permissions.global) {
-      throw new Error("User has insufficient rights");
-    }
 
     const newCompany: ICompany = {
       name,
@@ -45,35 +34,17 @@ class CompanyController extends CrudController {
     res.json(response);
   }
   public async read(req: Request, res: Response) {
-    const { uid, company } = req.body;
-    const { id } = req.body.qry;
+    const { company, fromCompany } = req.body;
 
-    if (!id) throw new Error("id is required");
-    if (!Types.ObjectId.isValid(id)) throw new Error("id is not valid");
-    if (id != company) {
-      const role = roleManager.getRoleById(
-        req.body.role || User.findOne({ _id: uid }).role,
-        company
-      );
-      if (
-        role &&
-        (role.permissions.company == "read" ||
-          role.permissions.company == "write") &&
-        role.permissions.global
-      ) {
-        const response = await Company.findOne({ _id: id });
-        res.json(response);
-      } else {
-        throw new Error("User has insufficient rights to view another company");
-      }
-    } else {
-      const response = await Company.findOne({ _id: id });
-      res.json(response);
-    }
+    const response = await Company.findOne({ _id: fromCompany || company });
+    res.json(response);
   }
+
   public async update(req: Request, res: Response) {
-    const { uid, role, company } = req.body;
-    const { name, location, ttl, layout, id } = req.body.qry;
+    const { company, fromCompany, qry } = req.body;
+    const { name, location, ttl, layout } = qry;
+
+    const previous = await Company.findOne({ _id: fromCompany || company });
 
     const newCompany: ICompany = {
       name,
@@ -81,17 +52,17 @@ class CompanyController extends CrudController {
       ttl,
       layout,
     };
-    if (company != id) {
-      const r = roleManager.getRoleById(
-        role || User.findOne({ _id: uid })?.role,
-        company
-      );
-      if (!r || r.permissions.company != "write" || !r.permissions.global) {
-        throw new Error("User has insufficient rights");
-      }
-    }
 
-    const response = await Company.updateOne({ _id: id }, { ...newCompany });
+    const filteredUpdate = filter(newCompany);
+    const newLocation = { ...previous.location, ...filteredUpdate.location };
+    const newLayout = { ...previous.layout, ...filteredUpdate.layout };
+    filteredUpdate.location = newLocation;
+    filteredUpdate.layout = newLayout;
+
+    const response = await Company.updateOne(
+      { _id: fromCompany || company },
+      { ...filteredUpdate }
+    );
     res.json(response);
   }
   public async delete(req: Request, res: Response) {
