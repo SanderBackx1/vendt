@@ -1,6 +1,6 @@
-import express from "express";
+import express, { Router } from "express";
 import dotenv from "dotenv";
-import { router } from "./routes";
+import { router, helloworldrouter } from "./routes";
 import mongoose from "mongoose";
 
 const app = express();
@@ -17,6 +17,8 @@ if (process.env.DB_CONNECT) {
     }
   );
 }
+
 app.use(express.json());
 app.use("/api", router);
+app.use("/", helloworldrouter);
 app.listen(PORT, () => console.log("server running"));
