@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { CrudController } from "../CrudController";
-import { isILocation, isILayout, ICompany, Company } from "../../model/Company";
+import { ICompany, Company } from "../../model/Company";
+import { isILocation, isILayout } from "../../model/sharedInterfaces";
 import RoleManager from "../../manager/RoleManager";
 import { Types } from "mongoose";
 import { User } from "../../model/User";
