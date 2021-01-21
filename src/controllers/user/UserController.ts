@@ -9,19 +9,22 @@ import { Types } from "mongoose";
 const roleManager = RoleManager.Instance;
 
 class UserController extends CrudController {
+  constructor() {
+    super();
+  }
   public async create(req: Request, res: Response) {
     try {
-      const { company, firstname, role } = req.body;
+      const { company } = req.body;
+      const { firstname, role, id, lastname, msid, rfid } = req.body.qry;
 
-      if (!company) throw new Error("company not found");
       if (!firstname) throw new Error("firstname not found");
       if (!role) throw new Error("role not found");
 
-      if (req.body.id) {
+      if (id) {
         return await this.update(req, res);
       }
 
-      const maxItems = roleManager.getRoleById(role)?.defaultMaxItems;
+      const maxItems = roleManager.getRoleById(role, company)?.defaultMaxItems;
       const user: IUser = {
         company,
         firstname,
@@ -30,14 +33,12 @@ class UserController extends CrudController {
         itemsUsed: 0,
       };
 
-      if (req.body.lastname) user.lastname = req.body.lastname;
-      if (req.body.msid) user.msid = req.body.msid;
-      if (req.body.rfid) user.rfid = req.body.rfid;
+      if (lastname) user.lastname = lastname;
+      if (msid) user.msid = msid;
+      if (rfid) user.rfid = rfid;
 
       const doc = new User(user);
       const response = await doc.save();
-      // const u: UserDocument = await User.create(user);
-      console.log("done");
       res.json(response);
     } catch (err) {
       throw err;
@@ -59,7 +60,7 @@ class UserController extends CrudController {
   }
   public async update(req: Request, res: Response) {
     const { id, company, firstname, role } = req.body;
-    const maxItems = roleManager.getRoleById(role)?.defaultMaxItems;
+    const maxItems = roleManager.getRoleById(role, company)?.defaultMaxItems;
     const user: IUser = {
       company,
       firstname,

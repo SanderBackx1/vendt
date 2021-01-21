@@ -7,17 +7,21 @@ import { Types } from "mongoose";
 const roleManager = RoleManager.Instance;
 
 class RoleController extends CrudController {
+  constructor() {
+    super();
+  }
   public async create(req: Request, res: Response) {
     if (req.body.id) {
       this.update(req, res);
     } else {
+      if (!req.body.qry) throw new Error("no qry present");
       const {
         name,
         defaultMaxItems,
         company,
         permissions,
         subscriptionOnTags,
-      } = req.body;
+      } = req.body.qry;
       if (!name) throw new Error("name is required");
       if (!defaultMaxItems) throw new Error("defaultMaxItems is required");
       if (!permissions) throw new Error("permissions is required");
@@ -41,11 +45,12 @@ class RoleController extends CrudController {
   }
   public async read(req: Request, res: Response) {
     try {
-      const { id } = req.body;
+      console.log(req.body.role);
+      const { company } = req.body;
+      const { id } = req.body.qry;
       if (!id) throw new Error("No id found");
       if (Types.ObjectId.isValid(id)) {
-        const role = roleManager.getRoleById(id);
-        console.log(role);
+        const role = roleManager.getRoleById(id, company);
         res.json(role);
       } else {
         throw new Error("id is not valid");

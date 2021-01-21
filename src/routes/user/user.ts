@@ -1,8 +1,7 @@
 import express, { Request, Response } from "express";
-import { write } from "fs";
 import { userController } from "../../controllers/user/UserController";
 
-import { writeUsers, readUsers } from "../../middleware";
+import { writeUsers, readUsers, secured } from "../../middleware";
 
 export const router = express.Router({
   strict: true,
@@ -18,7 +17,7 @@ router.get("/", readUsers, async (req: Request, res: Response) => {
   }
 });
 //-----------------------
-router.get("/all", async (req: Request, res: Response) => {
+router.get("/all", secured, readUsers, async (req: Request, res: Response) => {
   try {
     await userController.readAll(req, res);
   } catch (err) {
