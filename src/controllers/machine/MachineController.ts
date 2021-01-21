@@ -134,8 +134,10 @@ class MachineController extends CrudController {
     };
 
     let filteredUpdate = filter(update);
-    let newLayout = { ...previous.layout, ...filteredUpdate.layout };
+    const newLocation = { ...previous.location, ...filteredUpdate.location };
+    const newLayout = { ...previous.layout, ...filteredUpdate.layout };
     filteredUpdate.layout = newLayout;
+    filteredUpdate.location = newLocation;
 
     const response = await Machine.updateOne(
       { _id: id, company: fromCompany || company },
