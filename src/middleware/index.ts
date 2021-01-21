@@ -129,3 +129,5 @@ export const readUsers = async (
     res.status(401).json({ error: err.message });
   }
 };
+
+export const securedWithQuery = [secured, hasQuery];
