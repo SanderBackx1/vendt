@@ -1,10 +1,6 @@
 # Back end system
 
 ## Todo
-- add tags to roles
-- company middleware
-- company crud
-- add imageUrl to company
 - inquiries
 - alerts crud
 - user login
