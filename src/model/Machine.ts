@@ -8,7 +8,7 @@ export interface IMachine {
   stock: number;
   maxStock: number;
   status: string;
-  lastService: number;
+  lastService?: number;
   layout: ILayout;
   user: Types.ObjectId;
   company: Types.ObjectId;
@@ -27,7 +27,7 @@ const machineSchema = new Schema({
   stock: { type: Number, required: true },
   maxStock: { type: Number, required: true },
   status: { type: String, required: true },
-  lastService: { type: Number, required: true },
+  lastService: { type: Number, required: false },
   layout: {
     title: { type: String, required: true },
     motd: { type: String, required: true },
