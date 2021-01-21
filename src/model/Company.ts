@@ -42,6 +42,7 @@ export interface ICompany {
   location: ILocation;
   ttl: number;
   layout: ILayout;
+  imageURL?: string;
 }
 
 export interface CompanyDocument extends ICompany, Document {}
@@ -64,6 +65,7 @@ const companySchema: Schema = new Schema({
     okTakeOutSuccessful: { type: String, required: true },
     errGeneralFailure: { type: String, required: true },
   },
+  imageURL: { type: String, required: false },
 });
 
 export const Company: Model<CompanyDocument> = model("Company", companySchema);

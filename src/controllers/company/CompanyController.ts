@@ -12,7 +12,7 @@ class CompanyController extends CrudController {
   }
   public async create(req: Request, res: Response) {
     const { uid, role, company } = req.body;
-    const { name, location, ttl, layout, id } = req.body.qry;
+    const { name, location, ttl, layout, id, imageURL } = req.body.qry;
     if (!name) throw new Error("name is required");
     if (!location) throw new Error("name is required");
     if (!isILocation(location)) throw new Error("Location is not valid");
@@ -37,6 +37,9 @@ class CompanyController extends CrudController {
       ttl,
       layout,
     };
+
+    if (imageURL) newCompany.imageURL = imageURL;
+
     const response = await Company.create(newCompany);
     res.json(response);
   }
