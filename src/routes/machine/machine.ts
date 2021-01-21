@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { machineController } from "../../controllers/machine/MachineController";
-import { securedWithQuery } from "../../middleware";
+import { securedWithQuery, secured } from "../../middleware";
 
 export const router = Router();
 
@@ -20,7 +20,7 @@ router.post("/", securedWithQuery, async (req: Request, res: Response) => {
   }
 });
 
-router.get("/all", securedWithQuery, async (req: Request, res: Response) => {
+router.get("/all", secured, async (req: Request, res: Response) => {
   try {
     await machineController.readAll(req, res);
   } catch (err) {

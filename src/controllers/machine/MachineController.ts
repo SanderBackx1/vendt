@@ -5,6 +5,8 @@ import { IMachine, Machine } from "../../model/Machine";
 import { Company } from "../../model/Company";
 import RoleManager from "../../manager/RoleManager";
 import { User } from "../../model/User";
+import { idText } from "typescript";
+import { Types } from "mongoose";
 
 const roleManager = RoleManager.Instance;
 class MachineController extends CrudController {
@@ -74,7 +76,32 @@ class MachineController extends CrudController {
     res.json(response);
   }
   public async readAll(req: Request, res: Response) {
-    throw new Error("Not implemented yet");
+    const { uid, company, role } = req.body;
+    const fromCompany = req.body.qry ? req.body.qry?.fromCompany : null;
+
+    if (fromCompany) {
+      const r = roleManager.getRoleById(
+        role || (await User.findOne({ _id: uid, company }).role),
+        company
+      );
+      if (
+        !r ||
+        !(
+          r.permissions.machines == "read" || r.permissions.machines == "write"
+        ) ||
+        !r.permissions.global
+      ) {
+        throw new Error("User has insufficient rights");
+      }
+      if (!Types.ObjectId.isValid(fromCompany))
+        throw new Error("fromCompany is not valid");
+    }
+
+    const response = await Machine.find({
+      company: fromCompany || company,
+    });
+
+    res.json(response);
   }
   public async update(req: Request, res: Response) {
     throw new Error("Not implemented yet");
