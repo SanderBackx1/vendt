@@ -24,7 +24,7 @@ export const secured = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { uid, company } = req.body;
+  const { uid, company, fromCompany } = req.body;
   try {
     if (!uid) throw new Error("No uid");
     if (!company) throw new Error("no company");
@@ -38,6 +38,15 @@ export const secured = async (
     //check if valid company
     const copmany = await Company.findOne({ _id: company });
     if (!copmany) throw new Error("Company not found");
+
+    if (fromCompany) {
+      const r = roleManager.getRoleById(user.role, company);
+      if (!r || !r.permissions.global) {
+        throw new Error("User has insufficient permissions");
+      }
+      if (!Types.ObjectId.isValid(fromCompany))
+        throw new Error("fromCompany is not valid");
+    }
 
     next();
   } catch (err) {

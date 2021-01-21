@@ -5,9 +5,8 @@ import { IMachine, Machine } from "../../model/Machine";
 import { Company } from "../../model/Company";
 import RoleManager from "../../manager/RoleManager";
 import { User } from "../../model/User";
-import { idText } from "typescript";
 import { Types } from "mongoose";
-import { type } from "os";
+import filter from "../../helpers/filter";
 
 const roleManager = RoleManager.Instance;
 class MachineController extends CrudController {
@@ -78,27 +77,18 @@ class MachineController extends CrudController {
     res.json(response);
   }
   public async readAll(req: Request, res: Response) {
-    const { uid, company, role } = req.body;
-    const fromCompany = req.body.qry ? req.body.qry?.fromCompany : null;
+    const { uid, company, role, fromCompany } = req.body;
 
-    if (fromCompany) {
-      const r = roleManager.getRoleById(
-        role || (await User.findOne({ _id: uid, company }).role),
-        company
-      );
-      if (
-        !r ||
-        !(
-          r.permissions.machines == "read" || r.permissions.machines == "write"
-        ) ||
-        !r.permissions.global
-      ) {
-        throw new Error("User has insufficient rights");
-      }
-      if (!Types.ObjectId.isValid(fromCompany))
-        throw new Error("fromCompany is not valid");
+    const r = roleManager.getRoleById(
+      role || (await User.findOne({ _id: uid, company }).role),
+      company
+    );
+    if (
+      !r ||
+      !(r.permissions.machines == "read" || r.permissions.machines == "write")
+    ) {
+      throw new Error("User has insufficient rights");
     }
-
     const response = await Machine.find({
       company: fromCompany || company,
     });
@@ -106,7 +96,7 @@ class MachineController extends CrudController {
     res.json(response);
   }
   public async update(req: Request, res: Response) {
-    const { uid, company, role } = req.body;
+    const { uid, company, role, fromCompany, qry } = req.body;
     const {
       name,
       location,
@@ -115,18 +105,15 @@ class MachineController extends CrudController {
       status,
       lastService,
       id,
-      fromCompany,
       layout,
-    } = req.body.qry;
+    } = qry;
 
-    if (fromCompany) {
-      const r = roleManager.getRoleById(
-        role || User.findOne({ _id: uid, company })?.role,
-        company
-      );
-      if (!r || r.permissions.machines != "write" || r.permissions.global) {
-        throw new Error("User has insufficient rights");
-      }
+    const r = roleManager.getRoleById(
+      role || User.findOne({ _id: uid, company })?.role,
+      company
+    );
+    if (!r || r.permissions.machines != "write") {
+      throw new Error("User has no machine write rights");
     }
 
     const previous = await Machine.findOne({
@@ -146,12 +133,9 @@ class MachineController extends CrudController {
       lastService,
     };
 
-    let filteredUpdate = this.filter(update);
-    console.log(filteredUpdate.layout);
-    console.log(previous.layout);
+    let filteredUpdate = filter(update);
     let newLayout = { ...previous.layout, ...filteredUpdate.layout };
     filteredUpdate.layout = newLayout;
-    console.log(filteredUpdate.layout);
 
     const response = await Machine.updateOne(
       { _id: id, company: fromCompany || company },
@@ -160,20 +144,22 @@ class MachineController extends CrudController {
     res.json(response);
   }
   public async delete(req: Request, res: Response) {
-    throw new Error("Not implemented yet");
-  }
+    const { uid, company, fromCompany, role, qry } = req.body;
+    const { id } = qry;
 
-  private filter(object: { [key: string]: any }) {
-    Object.entries(object).forEach((entry: [string, any]) => {
-      const [key, value] = entry;
-      if (typeof value == "object") {
-        return this.filter(value);
-      }
-      if (value == "" || value == null) {
-        delete object[key];
-      }
+    const r = roleManager.getRoleById(
+      role || (await User.findOne({ _id: uid, company })),
+      company
+    );
+    if (!r || r.permissions.machines != "write") {
+      throw new Error("User has no write permission");
+    }
+
+    const response = await Machine.deleteOne({
+      _id: id,
+      company: fromCompany || company,
     });
-    return object;
+    res.json(response);
   }
 }
 
