@@ -130,4 +130,17 @@ export const readUsers = async (
   }
 };
 
+export const checkIfUpdate = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { id } = req.body.qry;
+  if (id) {
+    next("route");
+  } else {
+    next();
+  }
+};
+
 export const securedWithQuery = [secured, hasQuery];

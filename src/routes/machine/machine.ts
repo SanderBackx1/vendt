@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import { machineController } from "../../controllers/machine/MachineController";
-import { securedWithQuery, secured } from "../../middleware";
+import { securedWithQuery, secured, checkIfUpdate } from "../../middleware";
 
 export const router = Router();
 
@@ -12,9 +12,22 @@ router.get("/", securedWithQuery, async (req: Request, res: Response) => {
   }
 });
 
+router.post(
+  "/",
+  securedWithQuery,
+  checkIfUpdate,
+  async (req: Request, res: Response) => {
+    try {
+      await machineController.create(req, res);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+  }
+);
+
 router.post("/", securedWithQuery, async (req: Request, res: Response) => {
   try {
-    await machineController.create(req, res);
+    await machineController.update(req, res);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
