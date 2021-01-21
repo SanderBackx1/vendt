@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { IRole, Role, RoleDocument } from "../model/Role";
 
 export default class RoleManager {
@@ -41,11 +42,10 @@ export default class RoleManager {
     this.retreiveRoles();
     return response;
   }
-  public async editRoleById(id: string, newValue: IRole) {
+  public async editRoleById(id: string, company: string, newValue: any) {
     const response = await Role.updateOne(
-      { _id: id },
-      { $set: { ...newValue } },
-      { new: true }
+      { _id: id, company },
+      { ...newValue }
     );
     this.retreiveRoles();
     return response;

@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import { userController } from "../../controllers/user/UserController";
 
-import { writeUsers, readUsers, secured } from "../../middleware";
+import { writeUser, readUser, secured, checkIfUpdate} from "../../middleware";
 
 export const router = express.Router({
   strict: true,
@@ -9,7 +9,7 @@ export const router = express.Router({
 
 //USER READ RIGHTS NEEDED
 //-----------------------
-router.get("/", readUsers, async (req: Request, res: Response) => {
+router.get("/", readUser, async (req: Request, res: Response) => {
   try {
     await userController.read(req, res);
   } catch (err) {
@@ -17,7 +17,7 @@ router.get("/", readUsers, async (req: Request, res: Response) => {
   }
 });
 //-----------------------
-router.get("/all", secured, readUsers, async (req: Request, res: Response) => {
+router.get("/all", secured, readUser, async (req: Request, res: Response) => {
   try {
     await userController.readAll(req, res);
   } catch (err) {
@@ -27,7 +27,7 @@ router.get("/all", secured, readUsers, async (req: Request, res: Response) => {
 //-----------------------
 //USER WRITE RIGHTS NEEDED
 //-----------------------
-router.post("/", writeUsers, async (req: Request, res: Response) => {
+router.post("/", writeUser, async (req: Request, res: Response) => {
   try {
     await userController.create(req, res);
   } catch (err) {
@@ -35,7 +35,7 @@ router.post("/", writeUsers, async (req: Request, res: Response) => {
   }
 });
 
-router.post("/delete", writeUsers, async (req: Request, res: Response) => {
+router.post("/delete", writeUser, async (req: Request, res: Response) => {
   try {
     await userController.delete(req, res);
   } catch (err) {

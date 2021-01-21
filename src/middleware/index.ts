@@ -74,70 +74,6 @@ export const globalCompanyWrite = async (
     res.status(401).json({ error: err.message });
   }
 };
-export const writeUsers = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { uid, company, role } = req.body;
-    if (role) {
-      const r = roleManager.getRoleById(role, company);
-      if (r && r.permissions.users == "write") {
-        next();
-      }
-    } else {
-      const user = await User.findById(uid);
-      if (!user) {
-        throw new Error("Uid not found");
-      }
-      const r = roleManager.getRoleById(user.role, company);
-      if (r && r.permissions.users == "write") {
-        next();
-      } else {
-        throw new Error("User has no access");
-      }
-    }
-  } catch (err) {
-    res.status(401).json({ error: err.message });
-  }
-};
-export const readUsers = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const { uid, company, role } = req.body;
-    if (role) {
-      const r = roleManager.getRoleById(role, company);
-      if (
-        (r && r.permissions.users == "read") ||
-        r?.permissions.users == "write"
-      ) {
-        console.log("next");
-        next();
-      }
-    } else {
-      console.log("reading user");
-      const user = await User.findById(uid);
-      if (!user) {
-        throw new Error("Uid not found");
-      }
-      const r = roleManager.getRoleById(user.role, company);
-      if (
-        r &&
-        (r.permissions.users == "read" || r.permissions.users == "write")
-      ) {
-        next();
-      } else {
-        throw new Error("User has no access");
-      }
-    }
-  } catch (err) {
-    res.status(401).json({ error: err.message });
-  }
-};
 
 export const writeCompany = async (
   req: Request,
@@ -219,6 +155,49 @@ export const readMachine = async (
       !(r.permissions.company == "read" || r.permissions.company == "write")
     ) {
       throw new Error("User has no machine write rights");
+    }
+    next();
+  } catch (err) {
+    res.json(401).json({ error: err.message });
+  }
+};
+
+export const writeUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { uid, company, role } = req.body;
+    const r = roleManager.getRoleById(
+      role || (await User.findOne({ _id: uid, company })?.role),
+      company
+    );
+    if (!r || !(r.permissions.users == "write")) {
+      throw new Error("User has no user write rights");
+    }
+    next();
+  } catch (err) {
+    res.json(401).json({ error: err.message });
+  }
+};
+
+export const readUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { uid, company, role } = req.body;
+    const r = roleManager.getRoleById(
+      role || (await User.findOne({ _id: uid, company })?.role),
+      company
+    );
+    if (
+      !r ||
+      !(r.permissions.users == "read" || r.permissions.users == "write")
+    ) {
+      throw new Error("User has no user write rights");
     }
     next();
   } catch (err) {
