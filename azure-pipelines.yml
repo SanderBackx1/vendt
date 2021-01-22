@@ -41,6 +41,12 @@ stages:
         npm run test --if-present
       displayName: 'npm install, build and test'
       
+    - task: AzureKeyVault@1
+      inputs:
+        azureSubscription: 'Azure for Students (1d9d737b-aebb-4917-a872-68640db499d8)'
+        KeyVaultName: 'vendt'
+        SecretsFilter: '*'
+        RunAsPreJob: true
     - task: ArchiveFiles@2
       displayName: 'Archive files'
       inputs:
@@ -72,6 +78,8 @@ stages:
               secureFile: '.env'            
           - task: AzureWebApp@1
             displayName: 'Azure Web App Deploy: '
+            env:
+              DB_CONNECTION: $(db)
             inputs:
               azureSubscription: $(azureSubscription)
               appType: webAppLinux
