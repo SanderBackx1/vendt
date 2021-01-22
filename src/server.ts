@@ -8,14 +8,16 @@ const PORT = 8080;
 
 dotenv.config();
 let connection = false;
-mongoose.connect(
-  "mongodb://vendt:qzoB6lXUrZ3qeqmg3dzNtVaa8zkHVGivYgbtgQwDrITpxtt0Kb714UqJ2rpUBSfQF76JncT4k9q6Sr84zSwzpA==@vendt.mongo.cosmos.azure.com:10255/cosmosVendt?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@vendt@",
-  { useUnifiedTopology: true, useNewUrlParser: true },
-  () => {
-    connection = true;
-    console.log("connected to db");
-  }
-);
+if (process.env.DB_CONNECT) {
+  mongoose.connect(
+    process.env.DB_CONNECT,
+    { useUnifiedTopology: true, useNewUrlParser: true },
+    () => {
+      connection = true;
+      console.log("connected to db");
+    }
+  );
+}
 
 const connectionRouter = express.Router();
 connectionRouter.get("/", (req: any, res: any) => {
