@@ -76,8 +76,7 @@ stages:
           - task: AzureWebApp@1
             displayName: 'Azure Web App Deploy: '
             env:
-              DB_CONNECTION: $(DB_CONNECTION)
-              bash: echo $(DB_CONNECTION)
+              DB_CONNECTION: $(DB_CONNECTION)              
             inputs:
               azureSubscription: $(azureSubscription)
               appType: webAppLinux
@@ -85,3 +84,7 @@ stages:
               runtimeStack: 'NODE|10.10'
               package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
               startUpCommand: 'npm run start'
+          - bash: |
+              echo $(DB_CONNECTION)
+          
+        
