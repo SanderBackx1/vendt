@@ -19,13 +19,13 @@ if (process.env.DB_CONNECT) {
   );
 }
 
-const router = express.Router();
-router.get("/", (req: any, res: any) => {
+const rrouter = express.Router();
+rrouter.get("/", (req: any, res: any) => {
   res.json({ connection });
 });
 
 app.use(express.json());
 app.use("/api", router);
 app.use("/", helloworldrouter);
-app.use("/connection", router);
+app.use("/connection", rrouter);
 app.listen(PORT, () => console.log("server running"));
