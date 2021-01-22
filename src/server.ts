@@ -10,7 +10,7 @@ dotenv.config();
 let connection = false;
 if (process.env.DB_CONNECT) {
   mongoose.connect(
-    process.env.DB_CONNECT.concat("cosmosVendt"),
+    process.env.DB_CONNECT,
     { useUnifiedTopology: true, useNewUrlParser: true },
     () => {
       connection = true;
