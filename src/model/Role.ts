@@ -45,4 +45,31 @@ const RoleSchema: Schema = new Schema({
   company: { type: String, required: true },
   subscriptionOnTags: { type: [String], required: true },
 });
+
+export const defaultUser = {
+  name: "user",
+  defaultMaxItems: 0,
+  permissions: {
+    alerts: "none",
+    company: "none",
+    inquiry: "none",
+    machines: "none",
+    users: "none",
+    global: false,
+  },
+  subscriptionOnTags: [],
+};
+export const defaultAdmin = {
+  name: "admin",
+  defaultMaxItems: 0,
+  permissions: {
+    alerts: "write",
+    company: "write",
+    inquiry: "write",
+    machines: "write",
+    users: "write",
+    global: false,
+  },
+  subscriptionOnTags: [],
+};
 export const Role: Model<RoleDocument> = model("Role", RoleSchema);

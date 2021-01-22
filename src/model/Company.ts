@@ -1,12 +1,15 @@
-import { model, Schema, Model, Document } from "mongoose";
+import { model, Schema, Model, Document, Types } from "mongoose";
 import { ILayout, ILocation } from "./sharedInterfaces";
-
+import { IRole } from "./Role";
 export interface ICompany {
   name: string;
   location: ILocation;
   ttl: number;
   layout: ILayout;
   imageURL?: string;
+  defaultRole?: IRole;
+  resetFrequency: string;
+  resetStartDate: number;
 }
 
 export interface CompanyDocument extends ICompany, Document {}
@@ -30,6 +33,9 @@ const companySchema: Schema = new Schema({
     errGeneralFailure: { type: String, required: true },
   },
   imageURL: { type: String, required: false },
+  defaultRole: { type: Types.ObjectId, required: false },
+  resetFrequency: { type: String, required: true },
+  resetStartDate: { type: Number, required: true },
 });
 
 export const Company: Model<CompanyDocument> = model("Company", companySchema);

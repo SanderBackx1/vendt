@@ -3,7 +3,8 @@ import { CrudController } from "../CrudController";
 import { ICompany, Company } from "../../model/Company";
 import { isILocation, isILayout } from "../../model/sharedInterfaces";
 import filter from "../../helpers/filter";
-
+import { defaultUser, defaultAdmin } from "../../model/Role";
+import { roleController } from "../role/RoleController";
 class CompanyController extends CrudController {
   constructor() {
     super();
@@ -22,11 +23,23 @@ class CompanyController extends CrudController {
       location,
       ttl,
       layout,
+      resetFrequency: "weekly",
+      resetStartDate: new Date().getTime(),
     };
 
     if (imageURL) newCompany.imageURL = imageURL;
 
     const response = await Company.create(newCompany);
+    const { _id } = response;
+    const roleResponseUser = await roleController.createRole(defaultUser, _id);
+    const roleResponseAdmin = await roleController.createRole(
+      defaultAdmin,
+      _id
+    );
+
+    const roleId = roleResponseUser._id;
+    await Company.updateOne({ _id }, { defaultRole: roleId });
+
     res.json(response);
   }
   public async read(req: Request, res: Response) {
@@ -47,6 +60,8 @@ class CompanyController extends CrudController {
       location,
       ttl,
       layout,
+      resetFrequency: "weekly",
+      resetStartDate: new Date().getTime(),
     };
 
     const filteredUpdate = filter(newCompany);
