@@ -17,13 +17,13 @@ mongoose.connect(
   }
 );
 
-const rrouter = express.Router();
-rrouter.get("/", (req: any, res: any) => {
+const connectionRouter = express.Router();
+connectionRouter.get("/", (req: any, res: any) => {
   res.json({ connection });
 });
 
 app.use(express.json());
 app.use("/api", router);
 app.use("/", helloworldrouter);
-app.use("/connection", rrouter);
+app.use("/connection", connectionRouter);
 app.listen(PORT, () => console.log("server running"));
