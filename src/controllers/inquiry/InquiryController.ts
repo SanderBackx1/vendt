@@ -10,7 +10,7 @@ class InquiryController extends CrudController {
     throw new Error("not implemented yet");
   }
   public async read(req: Request, res: Response) {
-    throw new Error("not implemented yet");
+    throw new Error("nowqewqeqweqt implemented yet");
   }
 
   public async readAll(req: Request, res: Response) {

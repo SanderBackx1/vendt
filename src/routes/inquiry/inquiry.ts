@@ -1,21 +1,40 @@
 import { Router, Request, Response } from "express";
 import { inquiryController } from "../../controllers/inquiry/InquiryController";
+
+import {
+  writeInquiry,
+  readInquiry,
+  securedWithQuery,
+  secured,
+  checkIfUpdate,
+} from "../../middleware";
+
 export const router = Router();
 
-router.get("/", async (req: Request, res: Response) => {
-  try {
-    await inquiryController.read(req, res);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+router.get(
+  "/",
+  securedWithQuery,
+  readInquiry,
+  async (req: Request, res: Response) => {
+    try {
+      await inquiryController.read(req, res);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   }
-});
-router.get("/all", async (req: Request, res: Response) => {
-  try {
-    await inquiryController.readAll(req, res);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+);
+router.get(
+  "/all",
+  secured,
+  readInquiry,
+  async (req: Request, res: Response) => {
+    try {
+      await inquiryController.readAll(req, res);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
   }
-});
+);
 router.post("/", async (req: Request, res: Response) => {
   try {
     await inquiryController.create(req, res);

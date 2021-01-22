@@ -218,4 +218,47 @@ export const checkIfUpdate = (
   }
 };
 
+export const writeInquiry = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { uid, company, role } = req.body;
+    const r = roleManager.getRoleById(
+      role || (await User.findOne({ _id: uid, company })?.role),
+      company
+    );
+    if (!r || !(r.permissions.inquiry == "write")) {
+      throw new Error("User has no user write rights");
+    }
+    next();
+  } catch (err) {
+    res.json(401).json({ error: err.message });
+  }
+};
+
+export const readInquiry = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { uid, company, role } = req.body;
+    const r = roleManager.getRoleById(
+      role || (await User.findOne({ _id: uid, company })?.role),
+      company
+    );
+    if (
+      !r ||
+      !(r.permissions.inquiry == "read" || r.permissions.inquiry == "write")
+    ) {
+      throw new Error("User has no user write rights");
+    }
+    next();
+  } catch (err) {
+    res.json(401).json({ error: err.message });
+  }
+};
+
 export const securedWithQuery = [secured, hasQuery];
