@@ -7,7 +7,7 @@ export interface ICompany {
   ttl: number;
   layout: ILayout;
   imageURL?: string;
-  defaultRole?: IRole;
+  defaultRole?: Types.ObjectId;
   resetFrequency: string;
   resetStartDate: number;
 }

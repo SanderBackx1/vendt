@@ -15,7 +15,16 @@ class UserController extends CrudController {
   public async create(req: Request, res: Response) {
     try {
       const { company } = req.body;
-      const { firstname, role, id, lastname, msid, rfid } = req.body.qry;
+      const {
+        firstname,
+        role,
+        id,
+        lastname,
+        msid,
+        rfid,
+        email,
+        password,
+      } = req.body.qry;
 
       if (!firstname) throw new Error("firstname not found");
       if (!role) throw new Error("role not found");
@@ -28,6 +37,9 @@ class UserController extends CrudController {
       const user: IUser = {
         company,
         firstname,
+        lastname,
+        email,
+        password,
         maxItems: maxItems ? maxItems : 0, //Get max items from company
         role,
         itemsUsed: 0,
@@ -59,11 +71,22 @@ class UserController extends CrudController {
     }
   }
   public async update(req: Request, res: Response) {
-    const { id, company, firstname, role } = req.body;
+    const {
+      id,
+      company,
+      firstname,
+      role,
+      email,
+      lastname,
+      password,
+    } = req.body;
     const maxItems = roleManager.getRoleById(role, company)?.defaultMaxItems;
     const user: IUser = {
       company,
       firstname,
+      lastname,
+      email,
+      password,
       maxItems: maxItems ? maxItems : 0, //Get max items from company
       role,
       itemsUsed: 0,

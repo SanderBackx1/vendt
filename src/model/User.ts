@@ -1,11 +1,13 @@
-import { model, Schema, Model, Document } from "mongoose";
+import { model, Schema, Model, Document, Types } from "mongoose";
 export interface IUser {
   firstname: string;
-  lastname?: string;
+  lastname: string;
+  password: string;
+  email: string;
   date_created?: number;
   maxItems: number;
   rfid?: string;
-  role: string;
+  role: Types.ObjectId;
   itemsUsed?: number;
   msid?: string;
   company: string;
@@ -22,6 +24,8 @@ const UserSchema: Schema = new Schema({
   company: { type: String, required: false },
   role: { type: String, required: true },
   maxItems: { type: Number, required: true },
+  password: { type: String, required: true },
+  email: { type: String, required: true },
 });
 
 export const User: Model<UserDocument> = model("User", UserSchema);
