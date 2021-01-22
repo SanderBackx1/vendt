@@ -73,15 +73,10 @@ stages:
           - task: DownloadSecureFile@1
             inputs:
               secureFile: '.env'       
-          - task: CopyFiles@1
-            displayName: 'Copy env'
-            inputs:
-              contents: ".env"
-              TargetFolder: "/dist"
-          
           - task: AzureWebApp@1
             displayName: 'Azure Web App Deploy: '
-              
+            env:
+              DB_CONNECTION: $(DB_CONNECTION)              
             inputs:
               azureSubscription: $(azureSubscription)
               appType: webAppLinux
@@ -89,6 +84,7 @@ stages:
               runtimeStack: 'NODE|10.10'
               package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
               startUpCommand: 'npm run start'
-
+          - bash: |
+              echo $(DB_CONNECTION)
           
         
