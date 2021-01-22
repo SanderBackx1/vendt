@@ -50,8 +50,8 @@ class MachineController extends CrudController {
     res.json(response);
   }
   public async read(req: Request, res: Response) {
-    const { uid, company, role } = req.body;
-    const { id, fromCompany } = req.body.qry;
+    const { uid, company, fromCompany, role } = req.body;
+    const { id } = req.body.qry;
 
     if (!id) throw new Error("id is required");
     const response = await Machine.findOne({
