@@ -261,4 +261,33 @@ export const readInquiry = async (
   }
 };
 
+
+export const securedMachine = async(req:Request,res:Response,next:NextFunction)=>{
+
+  try{
+
+    const {machineId} = req.body;
+    if(!machineId) throw new Error("no machineId found") 
+    if(!Types.ObjectId.isValid(machineId)) throw new Error("machineId is not valid") 
+
+    next()
+  }catch(err){
+    res.json(401).json({error:err.message})
+  }
+}
+export const isQrInquiry = async(req:Request, res:Response, next:NextFunction)=>{
+  try{
+    const {qrinquiryId} = req.body.qry
+    if(qrinquiryId){
+      next()
+    }else{
+      next('route')
+    }
+  }catch(err){
+    res.json(401).json({error:err.message})
+  }
+}
+
 export const securedWithQuery = [secured, hasQuery];
+export const securedMachineWithQuery = [securedMachine, hasQuery]
+export const securedMachineWithQueryHasQR = [securedMachine, hasQuery, isQrInquiry]

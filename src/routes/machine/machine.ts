@@ -7,6 +7,8 @@ import {
   writeMachine,
   secured,
   checkIfUpdate,
+  securedMachineWithQuery,
+  securedMachineWithQueryHasQR,
 } from "../../middleware";
 
 export const router = Router();
@@ -71,7 +73,7 @@ router.post(
     }
   }
 );
-router.post("/validate", async(req:Request, res:Response)=>{
+router.post("/validate", securedMachineWithQuery, async(req:Request, res:Response)=>{
   try{
     await inquiryController.validate(req,res);
 
@@ -79,9 +81,17 @@ router.post("/validate", async(req:Request, res:Response)=>{
     res.status(400).json({ error: err.message });
   }
 })
-router.post("/success", async(req:Request, res:Response)=>{
+router.post("/success",securedMachineWithQueryHasQR, async(req:Request, res:Response)=>{
   try{
     await inquiryController.successQR(req,res);
+
+  }catch(err){
+    res.status(400).json({ error: err.message });
+  }
+})
+router.post("/success", async(req:Request, res:Response)=>{
+  try{
+    await inquiryController.success(req,res);
 
   }catch(err){
     res.status(400).json({ error: err.message });

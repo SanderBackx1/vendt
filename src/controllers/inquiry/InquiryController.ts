@@ -79,6 +79,9 @@ class InquiryController extends CrudController {
     res.json(response);
   }
 
+  public async success(req:Request, res:Response){
+    throw new Error("not implemented yet")
+  }
   public async successQR(req: Request, res: Response) {
     const { machineId, qry } = req.body;
     const { qrinquiryId } = qry;
