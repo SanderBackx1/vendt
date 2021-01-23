@@ -79,3 +79,11 @@ router.post("/validate", async(req:Request, res:Response)=>{
     res.status(400).json({ error: err.message });
   }
 })
+router.post("/success", async(req:Request, res:Response)=>{
+  try{
+    await inquiryController.successQR(req,res);
+
+  }catch(err){
+    res.status(400).json({ error: err.message });
+  }
+})
