@@ -1,6 +1,7 @@
 # Back end system
 
 ## Todo
+- add ttl to inquiry
 - inquiries users 
 - inquiries machine
 - alerts crud

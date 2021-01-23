@@ -11,7 +11,7 @@ let connection = false;
 if (process.env.DB_CONNECT) {
   mongoose.connect(
     process.env.DB_CONNECT,
-    { useUnifiedTopology: true, useNewUrlParser: true },
+    { useUnifiedTopology: true, useNewUrlParser: true, useCreateIndex: true },
     () => {
       connection = true;
       console.log("connected to db");
