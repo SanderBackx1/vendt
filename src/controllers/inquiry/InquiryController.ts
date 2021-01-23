@@ -20,14 +20,14 @@ class InquiryController extends CrudController {
 
   public async validate(req: Request, res: Response) {
     const { machineId, qry } = req.body;
-    const { qrcode } = qry;
+    const { qr } = qry;
 
     //if ttl not auto-deleting, implement ttl
 
     const machine: MachineDocument = await Machine.findOne({ _id: machineId });
     if (!machine) throw new Error("machine not found");
 
-    const inquiry = await QRInquiry.findOne({ qrCode: qrcode }).populate(
+    const inquiry = await QRInquiry.findOne({ qrCode: qr }).populate(
       "user"
     );
 
@@ -38,6 +38,7 @@ class InquiryController extends CrudController {
       );
       res.json({ status: "error", message });
     } //Send message instead of error
+
 
     if (!inquiry) {
       const message = MessageGenerator.generate(
