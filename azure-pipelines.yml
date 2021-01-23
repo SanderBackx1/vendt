@@ -79,8 +79,9 @@ stages:
               runtimeStack: 'NODE|10.10'
               package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
               startUpCommand: 'npm run start'
-          - task: DownloadSecureFile@1
-            inputs:
-              secureFile: '.env'       
+            env:
+              DB_CONNECTION: $(DB_CONNECTION)
+              TOKEN_SECRET: $(TOKEN_SECRET)
+    
           
         
