@@ -1,12 +1,11 @@
 import { Request, Response } from "express";
 import { CrudController } from "../CrudController";
-// import { User } from "../../interfaces/database";
+import { Role } from "../../model/Role";
 import { IUser, User, UserDocument } from "../../model/User";
 import RoleManager from "../../manager/RoleManager";
 import { Types } from "mongoose";
-
-// const userManager = UserManager.Instance;
-const roleManager = RoleManager.Instance;
+import filter from "../../helpers/filter"
+import bcrypt from "bcrypt";
 
 class UserController extends CrudController {
   constructor() {
@@ -18,7 +17,6 @@ class UserController extends CrudController {
       const {
         firstname,
         role,
-        id,
         lastname,
         msid,
         rfid,
@@ -27,31 +25,34 @@ class UserController extends CrudController {
       } = req.body.qry;
 
       if (!firstname) throw new Error("firstname not found");
+      if (!lastname) throw new Error("lastname not found");
+      if (!email) throw new Error("email not found");
+      if (!password) throw new Error("password not found");
       if (!role) throw new Error("role not found");
 
-      if (id) {
-        return await this.update(req, res);
-      }
-
-      const maxItems = roleManager.getRoleById(role, company)?.defaultMaxItems;
+      const salt = await bcrypt.genSalt(10);
+      const hashPassword = await bcrypt.hash(password, salt);
+  
+      const r = await Role.findById(role)
+      const maxItems = r.defaultMaxItems;
+      if(!maxItems) throw Error("Couldn't find default maxItems")
       const user: IUser = {
-        company,
+        company:company._id,
         firstname,
         lastname,
         email,
-        password,
-        maxItems: maxItems ? maxItems : 0, //Get max items from company
+        password:hashPassword,
+        maxItems, //Get max items from company
         role,
         itemsUsed: 0,
+        msid,
+        rfid
       };
+      const filteredUser = filter(user);
 
-      if (lastname) user.lastname = lastname;
-      if (msid) user.msid = msid;
-      if (rfid) user.rfid = rfid;
-
-      const doc = new User(user);
-      const response = await doc.save();
-      res.json(response);
+      const response = await User.create(filteredUser)
+      
+      res.json({_id:response._id});
     } catch (err) {
       throw err;
     }
@@ -93,23 +94,29 @@ class UserController extends CrudController {
       email,
       lastname,
       password,
+      maxItems
     } = req.body.qry;
-    const maxItems = roleManager.getRoleById(role, company)?.defaultMaxItems;
+
+    let newMax:any = undefined;
+    if(role){
+      const r = await Role.findById(role)
+      newMax = r.defaultMaxItems;
+    }else if(maxItems){
+      newMax = maxItems;
+    }
+
     const user: IUser = {
       company,
       firstname,
       lastname,
       email,
       password,
-      maxItems: maxItems ? maxItems : 0, //Get max items from company
+      maxItems:newMax, //Get max items from company
       role,
       itemsUsed: 0,
     };
-
-    if (req.body.lastname) user.lastname = req.body.lastname;
-    if (req.body.msid) user.msid = req.body.msid;
-    if (req.body.rfid) user.rfid = req.body.rfid;
-    const response = await User.updateOne({ _id: id }, { ...user });
+    const filteredUser = filter(user);
+    const response = await User.updateOne({ _id: id }, { ...filteredUser });
     res.json(response);
   }
   public async delete(req: Request, res: Response) {

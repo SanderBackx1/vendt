@@ -1,4 +1,5 @@
 import { model, Schema, Model, Document, Types } from "mongoose";
+import { QRInquiry } from "./QRInquiry";
 export interface IUser {
   firstname: string;
   lastname: string;
@@ -27,5 +28,8 @@ const UserSchema: Schema = new Schema({
   password: { type: String, required: true },
   email: { type: String, required: true },
 });
-
+UserSchema.pre('remove',async function(next){
+  await QRInquiry.deleteMany({user:this._id})
+  next
+})
 export const User: Model<UserDocument> = model("User", UserSchema);
