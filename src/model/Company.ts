@@ -1,6 +1,8 @@
 import { model, Schema, Model, Document, Types } from "mongoose";
 import { ILayout, ILocation } from "./sharedInterfaces";
-import { IRole } from "./Role";
+import { Role } from "./Role";
+import { User } from "./User";
+import { Machine } from "./Machine";
 export interface ICompany {
   name: string;
   location: ILocation;
@@ -33,9 +35,15 @@ const companySchema: Schema = new Schema({
     errGeneralFailure: { type: String, required: true },
   },
   imageURL: { type: String, required: false },
-  defaultRole: { type: Types.ObjectId, required: false },
+  defaultRole: { type: Types.ObjectId, required: false, ref:"Role" },
   resetFrequency: { type: String, required: true },
   resetStartDate: { type: Number, required: true },
 });
 
+companySchema.pre("remove",  async function (next: any) {
+  await User.deleteMany({ company: this._id });
+  await Role.deleteMany({ company: this._id });
+  await Machine.deleteMany({company: this._id});
+  next()
+});
 export const Company: Model<CompanyDocument> = model("Company", companySchema);

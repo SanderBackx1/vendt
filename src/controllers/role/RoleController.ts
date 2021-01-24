@@ -57,7 +57,9 @@ class RoleController extends CrudController {
       if (!id) throw new Error("No id found");
       if (Types.ObjectId.isValid(id)) {
         const role = roleManager.getRoleById(id, fromCompany || company);
-        res.json(role);
+        const r = await Role.findOne({_id:id, company:company._id})
+        console.log(r)
+        res.json(r);
       } else {
         throw new Error("id is not valid");
       }

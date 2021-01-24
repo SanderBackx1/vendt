@@ -1,4 +1,4 @@
-import { model, Schema, Model, Document } from "mongoose";
+import { model, Schema, Model, Document, Types } from "mongoose";
 
 export type Permission = "read" | "write" | "none";
 
@@ -42,7 +42,7 @@ const RoleSchema: Schema = new Schema({
   },
   defaultMaxItems: { type: Number, required: true },
   name: { type: String, required: true },
-  company: { type: String, required: true },
+  company: { type: Types.ObjectId, required: true, ref:"Company"},
   subscriptionOnTags: { type: [String], required: true },
 });
 
