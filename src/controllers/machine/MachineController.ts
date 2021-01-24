@@ -14,7 +14,7 @@ class MachineController extends CrudController {
     super();
   }
   public async create(req: Request, res: Response) {
-    const { uid, company } = req.body;
+    const { company, _id } = req.body.user;
     const {
       name,
       location,
@@ -40,7 +40,7 @@ class MachineController extends CrudController {
       maxStock,
       status: status ? status : "good",
       layout,
-      user: uid,
+      user: _id,
       company,
     };
 
@@ -50,7 +50,8 @@ class MachineController extends CrudController {
     res.json(response);
   }
   public async read(req: Request, res: Response) {
-    const { uid, company, fromCompany, role } = req.body;
+    const { fromCompany } = req.body;
+    const { company } = req.body.user;
     const { id } = req.body.qry;
 
     if (!id) throw new Error("id is required");
@@ -61,8 +62,8 @@ class MachineController extends CrudController {
     res.json(response);
   }
   public async readAll(req: Request, res: Response) {
-    const { company, fromCompany } = req.body;
-
+    const { fromCompany } = req.body;
+    const { company } = req.body.user;
     const response = await Machine.find({
       company: fromCompany || company,
     });
@@ -70,7 +71,8 @@ class MachineController extends CrudController {
     res.json(response);
   }
   public async update(req: Request, res: Response) {
-    const { uid, company, role, fromCompany, qry } = req.body;
+    const { fromCompany, qry } = req.body;
+    const { company, _id } = req.body.user;
     const {
       name,
       location,
@@ -93,7 +95,7 @@ class MachineController extends CrudController {
       stock: stock ? stock : maxStock,
       maxStock,
       status: status ? status : "good",
-      user: uid,
+      user: _id,
       company,
       layout,
       lastService,
@@ -112,7 +114,8 @@ class MachineController extends CrudController {
     res.json(response);
   }
   public async delete(req: Request, res: Response) {
-    const { uid, company, fromCompany, role, qry } = req.body;
+    const { fromCompany, qry } = req.body;
+    const {company} = req.body.user
     const { id } = qry;
 
     const response = await Machine.deleteOne({

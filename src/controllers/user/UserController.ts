@@ -14,7 +14,7 @@ class UserController extends CrudController {
   }
   public async create(req: Request, res: Response) {
     try {
-      const { company } = req.body;
+      const { company } = req.body.user;
       const {
         firstname,
         role,
@@ -58,8 +58,10 @@ class UserController extends CrudController {
   }
   public async read(req: Request, res: Response) {
     try {
-      const { uid, id } = req.body;
-      const idToFind = id ? id : uid;
+      const { _id } = req.body.user;
+      const { id } = req.body.qry;
+
+      const idToFind = id ? id : _id;
       if (Types.ObjectId.isValid(idToFind)) {
         const user = await User.findById({ _id: idToFind });
         res.json(user);
@@ -79,7 +81,7 @@ class UserController extends CrudController {
       email,
       lastname,
       password,
-    } = req.body;
+    } = req.body.qry;
     const maxItems = roleManager.getRoleById(role, company)?.defaultMaxItems;
     const user: IUser = {
       company,
@@ -99,7 +101,7 @@ class UserController extends CrudController {
     res.json(response);
   }
   public async delete(req: Request, res: Response) {
-    const { id } = req.body;
+    const { id } = req.body.qry;
     if (!id) throw new Error("No id found");
     if (Types.ObjectId.isValid(id)) {
       const response = await User.findOneAndDelete({ _id: id });
@@ -111,8 +113,11 @@ class UserController extends CrudController {
 
   public async readAll(req: Request, res: Response) {
     try {
-      const {company} = req.body.user
-      const response = await User.find({company:company._id}).populate({path:'role', select:'name'});
+      const { company } = req.body.user;
+      const response = await User.find({ company: company._id }).populate({
+        path: "role",
+        select: "name",
+      });
       res.json(response);
     } catch (err) {
       throw err;

@@ -57,18 +57,15 @@ class InquiryController extends CrudController {
 
   public async create(req: Request, res: Response) {
     if (!process.env.TOKEN_SECRET) throw new Error("Server error");
-    const { auth, qry } = req.body;
-    const user = jwt.verify(auth, process.env.TOKEN_SECRET) as TokenInterface;
+    const { user, qry } = req.body;
 
-    const userDoc = await User.findOne({ _id: user.uid });
-    if (userDoc.maxItems - (userDoc.itemsUsed || 0) <= 0) {
-      // throw new Error("User has no more credits");
+    if (user.maxItems - (user.itemsUsed || 0) <= 0) {
+      throw new Error("User has no more credits");
     }
-    console.log(userDoc.maxItems - userDoc.itemsUsed);
 
     const { qr, ttl } = qry;
     if (!qr) throw new Error("no qr code found");
-    const company = await Company.findOne({ _id: user.company });
+    const {company} = user;
     if (!company && !ttl) throw new Error("Couldn't determine ttl");
 
     const inquiry: IQRInquiry = {
