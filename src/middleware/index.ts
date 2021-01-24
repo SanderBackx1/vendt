@@ -52,15 +52,12 @@ export const globalCompanyWrite = async (
   next: NextFunction
 ) => {
   try {
-    const { uid, company, role } = req.body;
-    const r = role
-      ? roleManager.getRoleById(role, company)
-      : User.findOne({ _id: uid })?.role;
-    if (r && r.permissions.company == "write" && r.permissions.global) {
+    const { role } = req.body.user;
+    if (role && role.permissions.company == "write" && role.permissions.global) {
       next();
-    } else if (r && r.permissions.company == "write" && !r.permissions.global) {
+    } else if (role && role.permissions.company == "write" && !role.permissions.global) {
       throw new Error("user has no global write rights");
-    } else if (r && r.permissions.company != "write") {
+    } else if (role && role.permissions.company != "write") {
       throw new Error("user has no company write rights");
     }
   } catch (err) {
@@ -74,13 +71,8 @@ export const writeCompany = async (
   next: NextFunction
 ) => {
   try {
-    const { uid, company, role } = req.body;
-
-    const r = roleManager.getRoleById(
-      role || (await User.findOne({ _id: uid, company })?.role),
-      company
-    );
-    if (!r || r.permissions.company != "write") {
+    const { role } = req.body.user;
+    if (!role || role.permissions.company != "write") {
       throw new Error("User has no company write rights");
     }
     next();
@@ -94,15 +86,11 @@ export const readCompany = async (
   next: NextFunction
 ) => {
   try {
-    const { uid, company, role } = req.body;
+    const {role } = req.body.user;
 
-    const r = roleManager.getRoleById(
-      role || (await User.findOne({ _id: uid, company })?.role),
-      company
-    );
     if (
-      !r ||
-      !(r.permissions.company == "read" || r.permissions.company == "write")
+      !role ||
+      !(role.permissions.company == "read" || role.permissions.company == "write")
     ) {
       throw new Error("User has no company read rights");
     }
@@ -118,12 +106,8 @@ export const writeMachine = async (
   next: NextFunction
 ) => {
   try {
-    const { uid, company, role } = req.body;
-    const r = roleManager.getRoleById(
-      role || (await User.findOne({ _id: uid, company })?.role),
-      company
-    );
-    if (!r || r.permissions.company != "write") {
+    const { role } = req.body.user;
+    if (!role || role.permissions.company != "write") {
       throw new Error("User has no machine write rights");
     }
     next();
@@ -138,14 +122,10 @@ export const readMachine = async (
   next: NextFunction
 ) => {
   try {
-    const { uid, company, role } = req.body;
-    const r = roleManager.getRoleById(
-      role || (await User.findOne({ _id: uid, company })?.role),
-      company
-    );
+    const { role } = req.body;
     if (
-      !r ||
-      !(r.permissions.company == "read" || r.permissions.company == "write")
+      !role ||
+      !(role.permissions.company == "read" || role.permissions.company == "write")
     ) {
       throw new Error("User has no machine write rights");
     }
@@ -161,12 +141,8 @@ export const writeUser = async (
   next: NextFunction
 ) => {
   try {
-    const { uid, company, role } = req.body;
-    const r = roleManager.getRoleById(
-      role || (await User.findOne({ _id: uid, company })?.role),
-      company
-    );
-    if (!r || !(r.permissions.users == "write")) {
+    const { role } = req.body.user;
+    if (!role || !(role.permissions.users == "write")) {
       throw new Error("User has no user write rights");
     }
     next();
@@ -213,12 +189,8 @@ export const writeInquiry = async (
   next: NextFunction
 ) => {
   try {
-    const { uid, company, role } = req.body;
-    const r = roleManager.getRoleById(
-      role || (await User.findOne({ _id: uid, company })?.role),
-      company
-    );
-    if (!r || !(r.permissions.inquiry == "write")) {
+    const { role } = req.body.user;
+    if (!role || !(role.permissions.inquiry == "write")) {
       throw new Error("User has no user write rights");
     }
     next();
@@ -233,14 +205,10 @@ export const readInquiry = async (
   next: NextFunction
 ) => {
   try {
-    const { uid, company, role } = req.body;
-    const r = roleManager.getRoleById(
-      role || (await User.findOne({ _id: uid, company })?.role),
-      company
-    );
+    const { role } = req.body.user;
     if (
-      !r ||
-      !(r.permissions.inquiry == "read" || r.permissions.inquiry == "write")
+      !role ||
+      !(role.permissions.inquiry == "read" || role.permissions.inquiry == "write")
     ) {
       throw new Error("User has no user write rights");
     }
