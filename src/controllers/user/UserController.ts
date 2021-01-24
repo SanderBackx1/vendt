@@ -56,11 +56,23 @@ class UserController extends CrudController {
       throw err;
     }
   }
+  public async me(req: Request, res: Response) {
+    try {
+      const { _id } = req.body.user;
+      if (Types.ObjectId.isValid(_id)) {
+        const user = await User.findById({ _id: _id }, {password:0});
+        res.json(user);
+      } else {
+        res.status(401).json({ error: "Bad id" });
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
   public async read(req: Request, res: Response) {
     try {
       const { _id } = req.body.user;
-      const { id } = req.body.qry;
-
+      const id = req.body?.qry?.id
       const idToFind = id ? id : _id;
       if (Types.ObjectId.isValid(idToFind)) {
         const user = await User.findById({ _id: idToFind }, {password:0});

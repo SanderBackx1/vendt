@@ -9,7 +9,7 @@ export const router = express.Router({
 
 //USER READ RIGHTS NEEDED
 //-----------------------
-router.get("/", readUser, async (req: Request, res: Response) => {
+router.get("/", secured, readUser, async (req: Request, res: Response) => {
   try {
     await userController.read(req, res);
   } catch (err) {
@@ -45,9 +45,9 @@ router.post("/delete", writeUser, async (req: Request, res: Response) => {
 //-----------------------
 //GENERAL USER
 //-------------
-router.get("/me", async (req: Request, res: Response) => {
+router.get("/me", secured,async (req: Request, res: Response) => {
   try {
-    await userController.read(req, res);
+    await userController.me(req, res);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
