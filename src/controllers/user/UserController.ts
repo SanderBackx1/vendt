@@ -63,7 +63,7 @@ class UserController extends CrudController {
 
       const idToFind = id ? id : _id;
       if (Types.ObjectId.isValid(idToFind)) {
-        const user = await User.findById({ _id: idToFind });
+        const user = await User.findById({ _id: idToFind }, {password:0});
         res.json(user);
       } else {
         res.status(401).json({ error: "Bad id" });
@@ -114,7 +114,7 @@ class UserController extends CrudController {
   public async readAll(req: Request, res: Response) {
     try {
       const { company } = req.body.user;
-      const response = await User.find({ company: company._id }).populate({
+      const response = await User.find({ company: company._id }, {password:0}).populate({
         path: "role",
         select: "name",
       });
