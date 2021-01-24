@@ -111,7 +111,8 @@ class UserController extends CrudController {
 
   public async readAll(req: Request, res: Response) {
     try {
-      const response = await User.find();
+      const {company} = req.body.user
+      const response = await User.find({company:company._id}).populate({path:'role', select:'name'});
       res.json(response);
     } catch (err) {
       throw err;

@@ -5,6 +5,7 @@ import jsw from "jsonwebtoken";
 import { Role } from "../../model/Role";
 import { Company, CompanyDocument } from "../../model/Company";
 import RoleManager from "../../manager/RoleManager";
+import { Types } from "mongoose";
 
 export const router = Router();
 const roleManager = RoleManager.Instance;
@@ -48,22 +49,29 @@ router.post("/register", async (req: Request, res: Response) => {
 });
 
 router.post("/login", async (req: Request, res: Response) => {
-  const { company, qry } = req.body;
-  const { email, password } = qry;
+  try{
 
-  const user = await User.findOne({ email, company });
-  if (!user) throw new Error("User not found");
-
-  const validPass = await bcrypt.compare(password, user.password);
-  if (!validPass) throw new Error("Password invalid");
-
-  if (process.env.TOKEN_SECRET) {
-    const token = jsw.sign(
-      { uid: user._id, company },
-      process.env.TOKEN_SECRET
-    );
-    res.json({ token });
-  } else {
-    res.json({ user });
-  }
+    const { company, qry } = req.body;
+    const { email, password } = qry;
+    const comp = Types.ObjectId.createFromHexString(company)
+    
+    const user = await User.findOne({email:email as string, company});
+    console.log(email)
+    if (!user) throw new Error("User not found");
+    
+    const validPass = await bcrypt.compare(password, user.password);
+    if (!validPass) throw new Error("Password invalid");
+    
+    if (process.env.TOKEN_SECRET) {
+      const token = jsw.sign(
+        { uid: user._id, company },
+        process.env.TOKEN_SECRET
+        );
+        res.json({ token });
+      } else {
+        res.json({ user });
+      }
+    }catch(err){
+      res.json({error:err.message})
+    }
 });
