@@ -35,3 +35,8 @@ export function isILayout(object: any): object is ILayout {
     "errGeneralFailure" in object
   );
 }
+export interface TokenInterface {
+  uid: string;
+  company: string;
+  iat: number;
+}

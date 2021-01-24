@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
+import { inquiryController } from "../../controllers/inquiry/InquiryController";
 import { userController } from "../../controllers/user/UserController";
-
-import { writeUser, readUser, secured, checkIfUpdate} from "../../middleware";
+import { writeUser, readUser, secured, checkIfUpdate } from "../../middleware";
 
 export const router = express.Router({
   strict: true,
@@ -50,5 +50,14 @@ router.get("/me", async (req: Request, res: Response) => {
     await userController.read(req, res);
   } catch (err) {
     res.status(400).json({ error: err.message });
+  }
+});
+
+//INQUIRY
+router.post("/inquiry", async (req: Request, res: Response) => {
+  try {
+    await inquiryController.create(req, res);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
