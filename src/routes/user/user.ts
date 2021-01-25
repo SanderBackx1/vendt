@@ -62,7 +62,7 @@ router.get("/me", secured,async (req: Request, res: Response) => {
 });
 
 //INQUIRY
-router.post("/inquiry", async (req: Request, res: Response) => {
+router.post("/inquiry",secured, async (req: Request, res: Response) => {
   try {
     await inquiryController.create(req, res);
   } catch (err) {
