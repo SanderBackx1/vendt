@@ -6,6 +6,7 @@ import { Role } from "../../model/Role";
 import { Company, CompanyDocument } from "../../model/Company";
 import RoleManager from "../../manager/RoleManager";
 import { Types } from "mongoose";
+import { registerValidation, loginValidation } from "./validation";
 
 export const router = Router();
 const roleManager = RoleManager.Instance;
@@ -15,12 +16,14 @@ router.post("/register", async (req: Request, res: Response) => {
     //VALIDATE
     const { company, qry } = req.body;
     const { email, password, firstname, lastname } = qry;
+    const {error} = registerValidation(qry)
+    if(error) throw new Error(error.details[0].message)
 
     const exists = await User.findOne({ email });
     if (exists) throw new Error("User already exists");
     const comp = await Company.findOne({
       _id: company,
-    }).populate('defaultRole');
+    }).populate("defaultRole");
 
     const salt = await bcrypt.genSalt(10);
     const hashPassword = await bcrypt.hash(password, salt);
@@ -50,6 +53,8 @@ router.post("/login", async (req: Request, res: Response) => {
   try {
     const { company, qry } = req.body;
     const { email, password } = qry;
+    const {error} = loginValidation(qry)
+    if(error) throw new Error(error.details[0].message)
 
     const user = await User.findOne({ email: email as string, company });
     if (!user) throw new Error("User not found");
