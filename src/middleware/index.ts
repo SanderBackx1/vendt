@@ -250,7 +250,25 @@ export const isQrInquiry = async (
     res.status(401).json({ error: err.message });
   }
 };
+export const isGlobalAdmin=async(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) =>{
+  try{
+    const {role} = req.body.user;
+    if(role.permissions.global){
+       next()
+    }else{
+      throw new Error("User is no global admin")
+    }
+  
+  } catch(err){
+    res.status(401).json({ error: err.message });
 
+  }
+
+}
 export const securedWithQuery = [secured, hasQuery];
 export const securedMachineWithQuery = [securedMachine, hasQuery];
 export const securedMachineWithQueryHasQR = [
