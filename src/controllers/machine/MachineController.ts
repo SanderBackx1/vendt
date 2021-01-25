@@ -81,26 +81,26 @@ class MachineController extends CrudController {
       status,
       lastService,
       id,
+      user,
       layout,
     } = qry;
 
+    const comp = qry?.company
     const previous = await Machine.findOne({
       _id: id,
-      company: fromCompany || company,
+      company: fromCompany || company._id,
     });
-
     const update: IMachine = {
       name,
       location,
-      stock: stock ? stock : maxStock,
+      stock,
       maxStock,
-      status: status ? status : "good",
-      user: _id,
-      company,
+      status,
+      user,
+      company:comp?comp:undefined,
       layout,
       lastService,
     };
-
     let filteredUpdate = filter(update);
     const newLocation = { ...previous.location, ...filteredUpdate.location };
     const newLayout = { ...previous.layout, ...filteredUpdate.layout };
@@ -108,7 +108,7 @@ class MachineController extends CrudController {
     filteredUpdate.location = newLocation;
 
     const response = await Machine.updateOne(
-      { _id: id, company: fromCompany || company },
+      { _id: id, company: fromCompany || company._id },
       { ...filteredUpdate }
     );
     res.json(response);

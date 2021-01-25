@@ -122,7 +122,7 @@ export const readMachine = async (
   next: NextFunction
 ) => {
   try {
-    const { role } = req.body;
+    const { role } = req.body.user;
     if (
       !role ||
       !(role.permissions.company == "read" || role.permissions.company == "write")
@@ -131,7 +131,7 @@ export const readMachine = async (
     }
     next();
   } catch (err) {
-    res.json(401).json({ error: err.message });
+    res.status(401).json({ error: err.message });
   }
 };
 
