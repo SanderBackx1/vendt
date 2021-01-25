@@ -16,9 +16,7 @@ const CompletedInquirySchema: Schema = new Schema({
   user: { type: Types.ObjectId, required: true, ref: "User" },
   machineName: { type: Types.ObjectId, required: true },
   machine: { type: String, required: true, ref: "Machine" },
-  createdAt: { type: Date, required: true, default: Date.now() },
-  updatedAt: { type: Date, required: true, default: Date.now() },
-});
+}, {timestamps:true});
 export const CompletedInquiry: Model<CompletedInquiryDocument> = model(
   "CompletedInquiry",
   CompletedInquirySchema

@@ -39,6 +39,6 @@ const machineSchema = new Schema({
   },
   user: { type: Types.ObjectId, required: true },
   company: { type: Types.ObjectId, required: true },
-});
+}, {timestamps:true});
 
 export const Machine: Model<MachineDocument> = model("Machine", machineSchema);

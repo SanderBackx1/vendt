@@ -35,15 +35,15 @@ const companySchema: Schema = new Schema({
     errGeneralFailure: { type: String, required: true },
   },
   imageURL: { type: String, required: false },
-  defaultRole: { type: Types.ObjectId, required: false, ref:"Role" },
+  defaultRole: { type: Types.ObjectId, required: false, ref: "Role" },
   resetFrequency: { type: String, required: true },
   resetStartDate: { type: Number, required: true },
-});
+}, {timestamps:true});
 
-companySchema.pre("remove",  async function (next: any) {
+companySchema.pre("remove", async function (next: any) {
   await User.deleteMany({ company: this._id });
   await Role.deleteMany({ company: this._id });
-  await Machine.deleteMany({company: this._id});
-  next()
+  await Machine.deleteMany({ company: this._id });
+  next();
 });
 export const Company: Model<CompanyDocument> = model("Company", companySchema);

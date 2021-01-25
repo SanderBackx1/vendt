@@ -42,9 +42,9 @@ const RoleSchema: Schema = new Schema({
   },
   defaultMaxItems: { type: Number, required: true },
   name: { type: String, required: true },
-  company: { type: Types.ObjectId, required: true, ref:"Company"},
+  company: { type: Types.ObjectId, required: true, ref: "Company" },
   subscriptionOnTags: { type: [String], required: true },
-});
+}, {timestamps:true});
 
 export const defaultUser = {
   name: "user",
