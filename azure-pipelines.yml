@@ -56,8 +56,6 @@ stages:
 
 - stage: Deploy
   displayName: Deploy stage
-  variables:
-  - group: DEV
   dependsOn: Build
   condition: succeeded()
   jobs:
@@ -79,9 +77,4 @@ stages:
               runtimeStack: 'NODE|10.10'
               package: $(Pipeline.Workspace)/drop/$(Build.BuildId).zip
               startUpCommand: 'npm run start'
-            env:
-              DB_CONNECTION: $(DB_CONNECTION)
-              TOKEN_SECRET: $(TOKEN_SECRET)
-    
-          
         
