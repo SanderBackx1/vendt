@@ -14,7 +14,7 @@ class MachineController extends CrudController {
     super();
   }
   public async create(req: Request, res: Response) {
-    const { uid, company } = req.body;
+    const { company, _id } = req.body.user;
     const {
       name,
       location,
@@ -40,7 +40,7 @@ class MachineController extends CrudController {
       maxStock,
       status: status ? status : "good",
       layout,
-      user: uid,
+      user: _id,
       company,
     };
 
@@ -50,7 +50,8 @@ class MachineController extends CrudController {
     res.json(response);
   }
   public async read(req: Request, res: Response) {
-    const { uid, company, fromCompany, role } = req.body;
+    const { fromCompany } = req.body;
+    const { company } = req.body.user;
     const { id } = req.body.qry;
 
     if (!id) throw new Error("id is required");
@@ -61,8 +62,8 @@ class MachineController extends CrudController {
     res.json(response);
   }
   public async readAll(req: Request, res: Response) {
-    const { company, fromCompany } = req.body;
-
+    const { fromCompany } = req.body;
+    const { company } = req.body.user;
     const response = await Machine.find({
       company: fromCompany || company,
     });
@@ -70,7 +71,8 @@ class MachineController extends CrudController {
     res.json(response);
   }
   public async update(req: Request, res: Response) {
-    const { uid, company, role, fromCompany, qry } = req.body;
+    const { fromCompany, qry } = req.body;
+    const { company, _id } = req.body.user;
     const {
       name,
       location,
@@ -79,26 +81,26 @@ class MachineController extends CrudController {
       status,
       lastService,
       id,
+      user,
       layout,
     } = qry;
 
+    const comp = qry?.company
     const previous = await Machine.findOne({
       _id: id,
-      company: fromCompany || company,
+      company: fromCompany || company._id,
     });
-
     const update: IMachine = {
       name,
       location,
-      stock: stock ? stock : maxStock,
+      stock,
       maxStock,
-      status: status ? status : "good",
-      user: uid,
-      company,
+      status,
+      user,
+      company:comp?comp:undefined,
       layout,
       lastService,
     };
-
     let filteredUpdate = filter(update);
     const newLocation = { ...previous.location, ...filteredUpdate.location };
     const newLayout = { ...previous.layout, ...filteredUpdate.layout };
@@ -106,13 +108,14 @@ class MachineController extends CrudController {
     filteredUpdate.location = newLocation;
 
     const response = await Machine.updateOne(
-      { _id: id, company: fromCompany || company },
+      { _id: id, company: fromCompany || company._id },
       { ...filteredUpdate }
     );
     res.json(response);
   }
   public async delete(req: Request, res: Response) {
-    const { uid, company, fromCompany, role, qry } = req.body;
+    const { fromCompany, qry } = req.body;
+    const {company} = req.body.user
     const { id } = qry;
 
     const response = await Machine.deleteOne({

@@ -1,13 +1,18 @@
 # Back end system
 
 ## Todo
-- inquiries
+- add ttl to inquiry
+- inquiries users 
+- inquiries machine
 - alerts crud
-- user login
+- auth token in middleware
 
 prefix `/api`
 
-Als er rechten nodig zijn, verstuur ook altijd 'uid' met de ingelogde gebruiker zijn id.
+Als er rechten nodig zijn, verstuur ook altijd `uid` en `company` met de ingelogde gebruiker zijn id.
+Voor het verandere op andere company kan men `fromCompany` meegeven. Dit gaat enkel als de gebruiker global rights heeft.
+
+*Might be changed to jwt token*
 
 ## USER
 

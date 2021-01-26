@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { CrudController } from "../CrudController";
 import RoleManager from "../../manager/RoleManager";
-import { Role, IRole, isIPermissions } from "../../model/Role";
+import { Role, IRole, isIPermissions, IPermissions } from "../../model/Role";
 import { Types } from "mongoose";
 import filter from "../../helpers/filter";
 
@@ -11,54 +11,65 @@ class RoleController extends CrudController {
   constructor() {
     super();
   }
-  public async create(req: Request, res: Response) {
-    const { fromCompany, qry } = req.body;
-    const {
+  public async createRole(
+    {
       name,
       defaultMaxItems,
-      company,
       permissions,
       subscriptionOnTags,
-    } = qry;
-
+    }: {
+      name: string;
+      defaultMaxItems: number;
+      permissions: object;
+      subscriptionOnTags: string[];
+    },
+    company: string
+  ) {
     if (!name) throw new Error("name is required");
-    if (!defaultMaxItems) throw new Error("defaultMaxItems is required");
+    if (defaultMaxItems == null || defaultMaxItems == undefined)
+      throw new Error("defaultMaxItems is required");
     if (!permissions) throw new Error("permissions is required");
     if (!company) throw new Error("company is required");
     if (!subscriptionOnTags) throw new Error("subscriptionOnTags is required");
     if (!isIPermissions(permissions))
       throw new Error("permissions is not valid");
-
     const role: IRole = {
-      company: fromCompany || company,
+      company,
       defaultMaxItems,
       name,
       permissions,
       subscriptionOnTags,
     };
-    const response = await roleManager.newRole(role);
+    return await roleManager.newRole(role);
+  }
+  public async create(req: Request, res: Response) {
+    const { fromCompany, qry } = req.body;
+    const { company } = req.body.user;
+    const response = await this.createRole(qry, fromCompany || company);
+
     res.json(response);
-    // throw new Error("Not yet implemented");
   }
   public async read(req: Request, res: Response) {
     try {
-      console.log(req.body.role);
-      const { company, fromCompany } = req.body;
+      const { fromCompany } = req.body;
+      const { company } = req.body.user;
       const { id } = req.body.qry;
       if (!id) throw new Error("No id found");
       if (Types.ObjectId.isValid(id)) {
         const role = roleManager.getRoleById(id, fromCompany || company);
-        res.json(role);
+        const r = await Role.findOne({_id:id, company:company._id})
+        console.log(r)
+        res.json(r);
       } else {
         throw new Error("id is not valid");
       }
     } catch (err) {
       throw err;
     }
-    // throw new Error("Not yet implemented");
   }
   public async update(req: Request, res: Response) {
-    const { company, fromCompany, qry } = req.body;
+    const { fromCompany, qry } = req.body;
+    const { company } = req.body.user;
     const { id } = qry;
     const { name, defaultMaxItems, permissions, subscriptionOnTags } = qry;
 

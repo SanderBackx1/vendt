@@ -3,6 +3,8 @@ import { IUser, User, UserDocument } from "../model/User";
 import RoleManager from "../manager/RoleManager";
 import { Types } from "mongoose";
 import { Company } from "../model/Company";
+import jwt from "jsonwebtoken";
+import { TokenInterface } from "../model/sharedInterfaces";
 
 const roleManager = RoleManager.Instance;
 
@@ -24,30 +26,21 @@ export const secured = async (
   res: Response,
   next: NextFunction
 ) => {
-  const { uid, company, fromCompany } = req.body;
   try {
-    if (!uid) throw new Error("No uid");
-    if (!company) throw new Error("no company");
-    if (!Types.ObjectId.isValid(uid)) throw new Error("uid not valid");
-    if (!Types.ObjectId.isValid(company)) throw new Error("uid not valid");
+    if (!process.env.TOKEN_SECRET) throw new Error("Server error");
+    const { auth } = req.body;
+    const authData = jwt.verify(
+      auth,
+      process.env.TOKEN_SECRET
+    ) as TokenInterface;
+    const user = await User.findOne({ _id: authData.uid })
+      .populate("role")
+      .populate("company");
 
-    //check if valid user
-    const user = await User.findOne({ _id: uid });
-    if (!user) throw new Error("User not found");
-    req.body.role = user.role;
-    //check if valid company
-    const copmany = await Company.findOne({ _id: company });
-    if (!copmany) throw new Error("Company not found");
-
-    if (fromCompany) {
-      const r = roleManager.getRoleById(user.role, company);
-      if (!r || !r.permissions.global) {
-        throw new Error("User has insufficient permissions");
-      }
-      if (!Types.ObjectId.isValid(fromCompany))
-        throw new Error("fromCompany is not valid");
-    }
-
+    if (!user) throw new Error("no user found");
+    if (!user.role) throw new Error("no role found");
+    if (!user.company) throw new Error("no company found");
+    req.body.user = user;
     next();
   } catch (err) {
     res.status(401).json({ error: err.message });
@@ -59,15 +52,20 @@ export const globalCompanyWrite = async (
   next: NextFunction
 ) => {
   try {
-    const { uid, company, role } = req.body;
-    const r = role
-      ? roleManager.getRoleById(role, company)
-      : User.findOne({ _id: uid })?.role;
-    if (r && r.permissions.company == "write" && r.permissions.global) {
+    const { role } = req.body.user;
+    if (
+      role &&
+      role.permissions.company == "write" &&
+      role.permissions.global
+    ) {
       next();
-    } else if (r && r.permissions.company == "write" && !r.permissions.global) {
+    } else if (
+      role &&
+      role.permissions.company == "write" &&
+      !role.permissions.global
+    ) {
       throw new Error("user has no global write rights");
-    } else if (r && r.permissions.company != "write") {
+    } else if (role && role.permissions.company != "write") {
       throw new Error("user has no company write rights");
     }
   } catch (err) {
@@ -81,13 +79,8 @@ export const writeCompany = async (
   next: NextFunction
 ) => {
   try {
-    const { uid, company, role } = req.body;
-
-    const r = roleManager.getRoleById(
-      role || (await User.findOne({ _id: uid, company })?.role),
-      company
-    );
-    if (!r || r.permissions.company != "write") {
+    const { role } = req.body.user;
+    if (!role || role.permissions.company != "write") {
       throw new Error("User has no company write rights");
     }
     next();
@@ -101,15 +94,14 @@ export const readCompany = async (
   next: NextFunction
 ) => {
   try {
-    const { uid, company, role } = req.body;
+    const { role } = req.body.user;
 
-    const r = roleManager.getRoleById(
-      role || (await User.findOne({ _id: uid, company })?.role),
-      company
-    );
     if (
-      !r ||
-      !(r.permissions.company == "read" || r.permissions.company == "write")
+      !role ||
+      !(
+        role.permissions.company == "read" ||
+        role.permissions.company == "write"
+      )
     ) {
       throw new Error("User has no company read rights");
     }
@@ -125,12 +117,8 @@ export const writeMachine = async (
   next: NextFunction
 ) => {
   try {
-    const { uid, company, role } = req.body;
-    const r = roleManager.getRoleById(
-      role || (await User.findOne({ _id: uid, company })?.role),
-      company
-    );
-    if (!r || r.permissions.company != "write") {
+    const { role } = req.body.user;
+    if (!role || role.permissions.company != "write") {
       throw new Error("User has no machine write rights");
     }
     next();
@@ -145,20 +133,19 @@ export const readMachine = async (
   next: NextFunction
 ) => {
   try {
-    const { uid, company, role } = req.body;
-    const r = roleManager.getRoleById(
-      role || (await User.findOne({ _id: uid, company })?.role),
-      company
-    );
+    const { role } = req.body.user;
     if (
-      !r ||
-      !(r.permissions.company == "read" || r.permissions.company == "write")
+      !role ||
+      !(
+        role.permissions.company == "read" ||
+        role.permissions.company == "write"
+      )
     ) {
       throw new Error("User has no machine write rights");
     }
     next();
   } catch (err) {
-    res.json(401).json({ error: err.message });
+    res.status(401).json({ error: err.message });
   }
 };
 
@@ -168,17 +155,13 @@ export const writeUser = async (
   next: NextFunction
 ) => {
   try {
-    const { uid, company, role } = req.body;
-    const r = roleManager.getRoleById(
-      role || (await User.findOne({ _id: uid, company })?.role),
-      company
-    );
-    if (!r || !(r.permissions.users == "write")) {
+    const { role } = req.body.user;
+    if (!role || !(role.permissions.users == "write")) {
       throw new Error("User has no user write rights");
     }
     next();
   } catch (err) {
-    res.json(401).json({ error: err.message });
+    res.status(401).json({ error: err.message });
   }
 };
 
@@ -188,20 +171,16 @@ export const readUser = async (
   next: NextFunction
 ) => {
   try {
-    const { uid, company, role } = req.body;
-    const r = roleManager.getRoleById(
-      role || (await User.findOne({ _id: uid, company })?.role),
-      company
-    );
+    const { role } = req.body.user;
     if (
-      !r ||
-      !(r.permissions.users == "read" || r.permissions.users == "write")
+      !role ||
+      !(role.permissions.users == "read" || role.permissions.users == "write")
     ) {
-      throw new Error("User has no user write rights");
+      throw new Error("User has no user read rights");
     }
     next();
   } catch (err) {
-    res.json(401).json({ error: err.message });
+    res.status(401).json({ error: err.message });
   }
 };
 
@@ -224,17 +203,13 @@ export const writeInquiry = async (
   next: NextFunction
 ) => {
   try {
-    const { uid, company, role } = req.body;
-    const r = roleManager.getRoleById(
-      role || (await User.findOne({ _id: uid, company })?.role),
-      company
-    );
-    if (!r || !(r.permissions.inquiry == "write")) {
+    const { role } = req.body.user;
+    if (!role || !(role.permissions.inquiry == "write")) {
       throw new Error("User has no user write rights");
     }
     next();
   } catch (err) {
-    res.json(401).json({ error: err.message });
+    res.status(401).json({ error: err.message });
   }
 };
 
@@ -244,21 +219,90 @@ export const readInquiry = async (
   next: NextFunction
 ) => {
   try {
-    const { uid, company, role } = req.body;
-    const r = roleManager.getRoleById(
-      role || (await User.findOne({ _id: uid, company })?.role),
-      company
-    );
+    const { role } = req.body.user;
     if (
-      !r ||
-      !(r.permissions.inquiry == "read" || r.permissions.inquiry == "write")
+      !role ||
+      !(
+        role.permissions.inquiry == "read" ||
+        role.permissions.inquiry == "write"
+      )
     ) {
       throw new Error("User has no user write rights");
     }
     next();
   } catch (err) {
-    res.json(401).json({ error: err.message });
+    res.status(401).json({ error: err.message });
   }
 };
 
+export const securedMachine = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { machineId } = req.body;
+    if (!machineId) throw new Error("no machineId found");
+    if (!Types.ObjectId.isValid(machineId))
+      throw new Error("machineId is not valid");
+
+    next();
+  } catch (err) {
+    res.status(401).json({ error: err.message });
+  }
+};
+export const isQrInquiry = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { qrinquiryId } = req.body.qry;
+    if (qrinquiryId) {
+      next();
+    } else {
+      next("route");
+    }
+  } catch (err) {
+    res.status(401).json({ error: err.message });
+  }
+};
+export const isGlobalAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { role } = req.body.user;
+    if (role.permissions.global) {
+      next();
+    } else {
+      throw new Error("User is no global admin");
+    }
+  } catch (err) {
+    res.status(401).json({ error: err.message });
+  }
+};
+export const hasRFID = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    if (req?.body?.qry?.rfid) {
+      next();
+    } else {
+      next("route");
+    }
+  } catch (err) {
+    res.status(401).json({ error: err.message });
+  }
+};
 export const securedWithQuery = [secured, hasQuery];
+export const securedMachineWithQuery = [securedMachine, hasQuery];
+export const securedMachineWithQueryHasRFID = [securedMachine, hasQuery, hasRFID];
+export const securedMachineWithQueryHasQR = [
+  securedMachine,
+  hasQuery,
+  isQrInquiry,
+];

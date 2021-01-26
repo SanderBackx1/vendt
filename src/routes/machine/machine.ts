@@ -1,4 +1,5 @@
 import { Router, Request, Response } from "express";
+import { inquiryController } from "../../controllers/inquiry/InquiryController";
 import { machineController } from "../../controllers/machine/MachineController";
 import {
   securedWithQuery,
@@ -6,6 +7,11 @@ import {
   writeMachine,
   secured,
   checkIfUpdate,
+  securedMachineWithQuery,
+  securedMachineWithQueryHasQR,
+  securedMachineWithQueryHasRFID,
+  hasRFID
+
 } from "../../middleware";
 
 export const router = Router();
@@ -70,3 +76,44 @@ router.post(
     }
   }
 );
+router.post("/validate", securedMachineWithQueryHasRFID, async(req:Request, res:Response)=>{
+  try{
+    await inquiryController.validate(req,res);
+
+  }catch(err){
+    res.status(400).json({ error: err.message });
+  }
+})
+router.post("/validate", async(req:Request, res:Response)=>{
+  try{
+    await inquiryController.validateQR(req,res);
+
+  }catch(err){
+    res.status(400).json({ error: err.message });
+  }
+})
+router.post("/success",securedMachineWithQueryHasQR, async(req:Request, res:Response)=>{
+  try{
+    await inquiryController.successQR(req,res);
+
+  }catch(err){
+    res.status(400).json({ error: err.message });
+  }
+})
+router.post("/success", async(req:Request, res:Response)=>{
+  try{
+    await inquiryController.success(req,res);
+
+  }catch(err){
+    res.status(400).json({ error: err.message });
+  }
+})
+
+router.post("/failure", async(req:Request, res:Response)=>{
+  try{
+    await inquiryController.failure(req,res);
+
+  }catch(err){
+    res.status(400).json({ error: err.message });
+  }
+})

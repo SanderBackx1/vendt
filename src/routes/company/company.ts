@@ -6,6 +6,7 @@ import {
   secured,
   securedWithQuery,
   writeCompany,
+  isGlobalAdmin
 } from "../../middleware";
 
 export const router = express.Router({
@@ -24,6 +25,7 @@ router.post(
   securedWithQuery,
   writeCompany,
   checkIfUpdate,
+  isGlobalAdmin,
   async (req: Request, res: Response) => {
     try {
       await companyController.create(req, res);
