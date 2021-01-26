@@ -53,9 +53,17 @@ export const globalCompanyWrite = async (
 ) => {
   try {
     const { role } = req.body.user;
-    if (role && role.permissions.company == "write" && role.permissions.global) {
+    if (
+      role &&
+      role.permissions.company == "write" &&
+      role.permissions.global
+    ) {
       next();
-    } else if (role && role.permissions.company == "write" && !role.permissions.global) {
+    } else if (
+      role &&
+      role.permissions.company == "write" &&
+      !role.permissions.global
+    ) {
       throw new Error("user has no global write rights");
     } else if (role && role.permissions.company != "write") {
       throw new Error("user has no company write rights");
@@ -86,11 +94,14 @@ export const readCompany = async (
   next: NextFunction
 ) => {
   try {
-    const {role } = req.body.user;
+    const { role } = req.body.user;
 
     if (
       !role ||
-      !(role.permissions.company == "read" || role.permissions.company == "write")
+      !(
+        role.permissions.company == "read" ||
+        role.permissions.company == "write"
+      )
     ) {
       throw new Error("User has no company read rights");
     }
@@ -125,7 +136,10 @@ export const readMachine = async (
     const { role } = req.body.user;
     if (
       !role ||
-      !(role.permissions.company == "read" || role.permissions.company == "write")
+      !(
+        role.permissions.company == "read" ||
+        role.permissions.company == "write"
+      )
     ) {
       throw new Error("User has no machine write rights");
     }
@@ -208,7 +222,10 @@ export const readInquiry = async (
     const { role } = req.body.user;
     if (
       !role ||
-      !(role.permissions.inquiry == "read" || role.permissions.inquiry == "write")
+      !(
+        role.permissions.inquiry == "read" ||
+        role.permissions.inquiry == "write"
+      )
     ) {
       throw new Error("User has no user write rights");
     }
@@ -250,27 +267,40 @@ export const isQrInquiry = async (
     res.status(401).json({ error: err.message });
   }
 };
-export const isGlobalAdmin=async(
+export const isGlobalAdmin = async (
   req: Request,
   res: Response,
   next: NextFunction
-) =>{
-  try{
-    const {role} = req.body.user;
-    if(role.permissions.global){
-       next()
-    }else{
-      throw new Error("User is no global admin")
+) => {
+  try {
+    const { role } = req.body.user;
+    if (role.permissions.global) {
+      next();
+    } else {
+      throw new Error("User is no global admin");
     }
-  
-  } catch(err){
+  } catch (err) {
     res.status(401).json({ error: err.message });
-
   }
-
-}
+};
+export const hasRFID = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    if (req?.body?.qry?.rfid) {
+      next();
+    } else {
+      next("route");
+    }
+  } catch (err) {
+    res.status(401).json({ error: err.message });
+  }
+};
 export const securedWithQuery = [secured, hasQuery];
 export const securedMachineWithQuery = [securedMachine, hasQuery];
+export const securedMachineWithQueryHasRFID = [securedMachine, hasQuery, hasRFID];
 export const securedMachineWithQueryHasQR = [
   securedMachine,
   hasQuery,
