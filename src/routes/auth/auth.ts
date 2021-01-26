@@ -50,12 +50,12 @@ router.post("/register", async (req: Request, res: Response) => {
 
 router.post("/login", async (req: Request, res: Response) => {
   try {
-    const { company, qry } = req.body;
+    const { qry } = req.body;
     const { email, password } = qry;
     const {error} = loginValidation(qry)
     if(error) throw new Error(error.details[0].message)
 
-    const user = await User.findOne({ email: email as string, company });
+    const user = await User.findOne({ email: email as string});
     if (!user) throw new Error("User not found");
 
     const validPass = await bcrypt.compare(password, user.password);
@@ -63,7 +63,7 @@ router.post("/login", async (req: Request, res: Response) => {
 
     if (process.env.TOKEN_SECRET) {
       const token = jsw.sign(
-        { uid: user._id, company },
+        { uid: user._id, company:user.company },
         process.env.TOKEN_SECRET
       );
       res.json({ token });
