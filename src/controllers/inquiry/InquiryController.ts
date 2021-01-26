@@ -5,7 +5,7 @@ import { Company } from "../../model/Company";
 import { TokenInterface } from "../../model/sharedInterfaces";
 import { IQRInquiry, QRInquiry } from "../../model/QRInquiry";
 import { Types } from "mongoose";
-import { User } from "../../model/User";
+import { User, IUser } from "../../model/User";
 import { Machine, MachineDocument } from "../../model/Machine";
 import MessageGenerator from "../../helpers/MessageGenerator";
 import {
@@ -20,6 +20,41 @@ class InquiryController extends CrudController {
 
   public async validate(req: Request, res: Response) {
     const { machineId, qry } = req.body;
+    const { rfid } = qry;
+
+    if (!Types.ObjectId.isValid(machineId))
+      throw new Error("machineId not valid");
+    const machine = await Machine.findOne({ _id: machineId });
+    if (!machine) throw new Error("machine not found");
+
+    const user: IUser = await User.findOne({ rfid, company: machine.company });
+    if (!user) throw new Error("User not found");
+
+    if (machine.stock <= 0) {
+      const message = MessageGenerator.generate(
+        machine.layout.errExceededMaxItems,
+        user
+      );
+      return res.json({ status: "error", message });
+    } //Send message instead of error
+
+    if (user.maxItems - (user.itemsUsed || 0) <= 0) {
+      const message = MessageGenerator.generate(
+        machine.layout.errExceededMaxItems,
+        user
+      );
+      return res.json({ status: "error", message });
+    }
+
+    const message = MessageGenerator.generate(
+      machine.layout.okTakeOutNow,
+      user
+    );
+    res.json({ status: "success", message, rfid });
+  }
+
+  public async validateQR(req: Request, res: Response) {
+    const { machineId, qry } = req.body;
     const { qr } = qry;
 
     //if ttl not auto-deleting, implement ttl
@@ -27,26 +62,20 @@ class InquiryController extends CrudController {
     const machine: MachineDocument = await Machine.findOne({ _id: machineId });
     if (!machine) throw new Error("machine not found");
 
-    const inquiry = await QRInquiry.findOne({ qrCode: qr }).populate(
-      "user"
-    );
-
+    const inquiry = await QRInquiry.findOne({ qrCode: qr }).populate("user");
+    if (!inquiry) {
+      return res.json({
+        status: "error",
+        message: machine.layout.errQrNotValid,
+      });
+    }
     if (machine.stock <= 0) {
       const message = MessageGenerator.generate(
         machine.layout.errQrNotValid,
         inquiry.user
       );
-      res.json({ status: "error", message });
+      return res.json({ status: "error", message });
     } //Send message instead of error
-
-
-    if (!inquiry) {
-      const message = MessageGenerator.generate(
-        machine.layout.errQrNotValid,
-        inquiry.user
-      );
-      res.json({ status: "error", message, qrinquiryId: inquiry._id });
-    }
 
     const message = MessageGenerator.generate(
       machine.layout.okTakeOutNow,
@@ -57,31 +86,63 @@ class InquiryController extends CrudController {
 
   public async create(req: Request, res: Response) {
     if (!process.env.TOKEN_SECRET) throw new Error("Server error");
-    const { auth, qry } = req.body;
-    const user = jwt.verify(auth, process.env.TOKEN_SECRET) as TokenInterface;
+    const { user, qry } = req.body;
 
-    const userDoc = await User.findOne({ _id: user.uid });
-    if (userDoc.maxItems - (userDoc.itemsUsed || 0) <= 0) {
-      // throw new Error("User has no more credits");
+    if (user.maxItems - (user.itemsUsed || 0) <= 0) {
+      throw new Error("User has no more credits");
     }
-    console.log(userDoc.maxItems - userDoc.itemsUsed);
 
     const { qr, ttl } = qry;
     if (!qr) throw new Error("no qr code found");
-    const company = await Company.findOne({ _id: user.company });
+    const { company } = user;
     if (!company && !ttl) throw new Error("Couldn't determine ttl");
 
     const inquiry: IQRInquiry = {
       qrCode: qr,
       ttl: ttl || company.ttl,
-      user: Types.ObjectId.createFromHexString(user.uid),
+      user: user._id,
     };
     const response = await QRInquiry.create(inquiry);
     res.json(response);
   }
 
-  public async success(req:Request, res:Response){
-    throw new Error("not implemented yet")
+  public async success(req: Request, res: Response) {
+    const { machineId } = req.body;
+    const { rfid } = req.body.qry;
+    if (!rfid) throw new Error("no rfid found");
+
+    if (!Types.ObjectId.isValid(machineId))
+      throw new Error("machineId not valid");
+    const machine = await Machine.findOne({ _id: machineId });
+    if (!machine) throw new Error("machine not found");
+
+    const user = await User.findOne({ rfid, company: machine.company });
+    if (!user) throw new Error("No user found");
+
+    const completedInquiry: ICompletedInquiry = {
+      amount: 1,
+      authType: "rfid",
+      machine: machineId,
+      user: user._id,
+      machineName: machine.name,
+    };
+    const response = await CompletedInquiry.create(completedInquiry);
+    if (response?._id) {
+      await Machine.updateOne(
+        { _id: machineId },
+        {
+          stock: machine.stock - completedInquiry.amount,
+          lastService: Date.now(),
+        }
+      );
+      const newUsed = user.itemsUsed?user.itemsUsed +=1:1;
+      await User.updateOne({
+        _id:user._id,
+
+      },{itemsUsed:newUsed})
+    }
+
+    res.json(response);
   }
   public async successQR(req: Request, res: Response) {
     const { machineId, qry } = req.body;
@@ -119,6 +180,20 @@ class InquiryController extends CrudController {
     }
 
     res.json(response);
+  }
+
+  public async failure(req: Request, res: Response) {
+    const { machineId } = req.body;
+    const { failure, qrinquiryId } = req.body.qry;
+
+    if (!Types.ObjectId.isValid(machineId))
+      throw new Error("machineId not valid");
+    const machine = await Machine.findOne({ _id: machineId });
+    if (!machine) throw new Error("machine not found");
+
+    //Create Alert
+
+    res.json({ status: "success" });
   }
 
   public async read(req: Request, res: Response) {

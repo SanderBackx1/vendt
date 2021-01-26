@@ -10,10 +10,8 @@ export interface QRInquiryDocument extends IQRInquiry, Document {}
 const QRInquirySchema: Schema = new Schema({
   ttl: { type: Number, required: true },
   qrCode: { type: String, required: true },
-  user: { type: Types.ObjectId, required: true, ref:"User" },
-  createdAt: { type: Date, required: true, default: Date.now() },
-  updatedAt: { type: Date, required: true, default: Date.now() },
-});
+  user: { type: Types.ObjectId, required: true, ref: "User" },
+}, {timestamps:true});
 export const QRInquiry: Model<QRInquiryDocument> = model(
   "qrinquiry",
   QRInquirySchema
