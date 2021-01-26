@@ -99,7 +99,7 @@ class InquiryController extends CrudController {
 
     const inquiry: IQRInquiry = {
       qrCode: qr,
-      ttl: ttl || company.ttl,
+      ttl:ttl || company.ttl,
       user: user._id,
     };
     const response = await QRInquiry.create(inquiry);
