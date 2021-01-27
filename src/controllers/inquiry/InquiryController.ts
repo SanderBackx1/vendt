@@ -38,7 +38,7 @@ class InquiryController extends CrudController {
       return res.json({ status: "error", message });
     } //Send message instead of error
 
-    if (user.maxItems - (user.itemsUsed || 0) <= 0) {
+    if (user.maxItems - (user.itemsUsed ?? 0) <= 0) {
       const message = MessageGenerator.generate(
         machine.layout.errExceededMaxItems,
         user
@@ -88,7 +88,7 @@ class InquiryController extends CrudController {
     if (!process.env.TOKEN_SECRET) throw new Error("Server error");
     const { user, qry } = req.body;
 
-    if (user.maxItems - (user.itemsUsed || 0) <= 0) {
+    if (user.maxItems - (user.itemsUsed ?? 0) <= 0) {
       throw new Error("User has no more credits");
     }
 
