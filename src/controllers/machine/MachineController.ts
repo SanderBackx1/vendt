@@ -7,6 +7,7 @@ import RoleManager from "../../manager/RoleManager";
 import { User } from "../../model/User";
 import { Types } from "mongoose";
 import filter from "../../helpers/filter";
+import { CompletedInquiry } from "../../model/CompletedInquiry";
 
 const roleManager = RoleManager.Instance;
 class MachineController extends CrudController {
@@ -53,14 +54,20 @@ class MachineController extends CrudController {
     
     const { fromCompany } = req.body;
     const { company } = req.body.user;
-    const { id } = req.query;
+    const { id, inquiries } = req.query;
 
 
     if (!id) throw new Error("id is required");
-    const response = await Machine.findOne({
+    let response = await Machine.findOne({
       _id: id,
       company: fromCompany || company,
     }).populate("user", {password:0}).populate("company");
+
+    if(inquiries && response){
+      const inquiries = await this.fetchMachineInquiries(id as string);
+      response = {...response._doc, inquiries}
+    }
+
     if(!response) throw new Error("machine not found")
     res.json(response);
   }
@@ -127,6 +134,8 @@ class MachineController extends CrudController {
     });
     res.json(response);
   }
+  private async fetchMachineInquiries(machineId:string){
+    return await CompletedInquiry.find({machine:machineId}).populate({path:"user", select:"firstname lastname email"});
+  }
 }
-
 export const machineController = new MachineController();

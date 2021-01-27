@@ -6,6 +6,7 @@ import RoleManager from "../../manager/RoleManager";
 import { Types } from "mongoose";
 import filter from "../../helpers/filter"
 import bcrypt from "bcrypt";
+import { CompletedInquiry } from "../../model/CompletedInquiry";
 
 class UserController extends CrudController {
   constructor() {
@@ -61,7 +62,7 @@ class UserController extends CrudController {
     try {
       const { _id } = req.body.user;
       if (Types.ObjectId.isValid(_id)) {
-        const user = await User.findById({ _id: _id }, {password:0});
+        const user = await User.findById({ _id: _id }, {password:0}).populate("role").populate("company");
         res.json(user);
       } else {
         res.status(401).json({ error: "Bad id" });
@@ -73,10 +74,14 @@ class UserController extends CrudController {
   public async read(req: Request, res: Response) {
     try {
       const { _id } = req.body.user;
-      const {id} = req.query
+      const {id, inquiries} = req.query
       const idToFind = id ? id : _id;
       if (Types.ObjectId.isValid(idToFind)) {
-        const user = await User.findById({ _id: idToFind }, {password:0});
+        let user = await User.findById({ _id: idToFind }, {password:0}).populate("role").populate("company");
+        if(inquiries && user){
+          const inquiries = await this.fetchUserInquiries(idToFind);
+          user = {...user._doc, inquiries}
+        }
         res.json(user);
       } else {
         res.status(401).json({ error: "Bad id" });
@@ -128,6 +133,10 @@ class UserController extends CrudController {
     } else {
       throw new Error("id not valid");
     }
+  }
+
+  private async fetchUserInquiries(userId:string){
+    return await CompletedInquiry.find({user:userId});
   }
 
   public async readAll(req: Request, res: Response) {
