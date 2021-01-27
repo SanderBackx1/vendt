@@ -73,7 +73,7 @@ class UserController extends CrudController {
   public async read(req: Request, res: Response) {
     try {
       const { _id } = req.body.user;
-      const id = req.body?.qry?.id
+      const {id} = req.query
       const idToFind = id ? id : _id;
       if (Types.ObjectId.isValid(idToFind)) {
         const user = await User.findById({ _id: idToFind }, {password:0});

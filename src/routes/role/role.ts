@@ -16,7 +16,7 @@ export const router = express.Router({
 });
 router.get(
   "/",
-  securedWithQuery,
+  secured,
   readUser,
   async (req: Request, res: Response) => {
     try {
@@ -28,7 +28,6 @@ router.get(
 );
 router.get("/all", secured, readUser, async (req: Request, res: Response) => {
   try {
-    console.log("noppers");
     await roleController.readAll(req, res);
   } catch (err) {
     res.status(400).json({ error: err.message });

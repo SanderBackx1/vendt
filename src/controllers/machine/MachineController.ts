@@ -60,16 +60,16 @@ class MachineController extends CrudController {
     const response = await Machine.findOne({
       _id: id,
       company: fromCompany || company,
-    });
+    }).populate("user", {password:0}).populate("company");
     if(!response) throw new Error("machine not found")
     res.json(response);
   }
   public async readAll(req: Request, res: Response) {
-    const { fromCompany } = req.body;
+    const { fromCompany } = req.query;
     const { company } = req.body.user;
     const response = await Machine.find({
       company: fromCompany || company,
-    });
+    })
 
     res.json(response);
   }

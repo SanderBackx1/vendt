@@ -3,6 +3,9 @@ import dotenv from "dotenv";
 import { router, helloworldrouter } from "./routes";
 import mongoose from "mongoose";
 
+import cors from 'cors'
+
+
 const app = express();
 const PORT = 8080;
 
@@ -24,7 +27,7 @@ connectionRouter.get("/", (req: any, res: any) => {
   res.json({ connection });
 });
 
-
+app.use(cors())
 app.use(express.json());
 app.use("/api", router);
 app.use("/", helloworldrouter);

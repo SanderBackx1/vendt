@@ -51,15 +51,13 @@ class RoleController extends CrudController {
   }
   public async read(req: Request, res: Response) {
     try {
-      const { fromCompany } = req.body;
       const { company } = req.body.user;
-      const { id } = req.body.qry;
+      const { id, fromCompany} = req.query;
       if (!id) throw new Error("No id found");
-      if (Types.ObjectId.isValid(id)) {
-        const role = roleManager.getRoleById(id, fromCompany || company);
-        const r = await Role.findOne({_id:id, company:company._id})
-        console.log(r)
-        res.json(r);
+      if (Types.ObjectId.isValid(id as string)) {
+        console.log(company._id)
+        const role = await Role.findOne({_id:id, company:company._id})
+        res.json(role);
       } else {
         throw new Error("id is not valid");
       }
@@ -108,7 +106,7 @@ class RoleController extends CrudController {
     }
   }
   public async readAll(req: Request, res: Response) {
-    const response = await roleManager.getAll();
+    const response = await Role.find({});
     res.json(response);
   }
 }

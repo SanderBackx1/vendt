@@ -39,8 +39,8 @@ const machineSchema = new Schema(
       okTakeOutSuccessful: { type: String, required: true },
       errGeneralFailure: { type: String, required: true },
     },
-    user: { type: Types.ObjectId, required: true },
-    company: { type: Types.ObjectId, required: true },
+    user: { type: Types.ObjectId, required: true, ref:"User" },
+    company: { type: Types.ObjectId, required: true ,ref:"Company"},
     ipadress: { type: String },
   },
   { timestamps: true }
