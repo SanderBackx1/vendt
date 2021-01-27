@@ -61,7 +61,7 @@ class InquiryController extends CrudController {
 
     const machine: MachineDocument = await Machine.findOne({ _id: machineId });
     if (!machine) throw new Error("machine not found");
-
+    console.log(qr)
     const inquiry = await QRInquiry.findOne({ qrCode: qr }).populate("user");
     if (!inquiry) {
       return res.json({

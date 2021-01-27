@@ -28,7 +28,8 @@ export const secured = async (
 ) => {
   try {
     if (!process.env.TOKEN_SECRET) throw new Error("Server error");
-    const { auth } = req.body;
+    const  auth  = req.headers?.authorization?.split(' ')[1];
+    if(!auth) throw new Error("no auth found")
     const authData = jwt.verify(
       auth,
       process.env.TOKEN_SECRET

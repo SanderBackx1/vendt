@@ -18,7 +18,7 @@ export const router = Router();
 
 router.get(
   "/",
-  securedWithQuery,
+  secured,
   readMachine,
   async (req: Request, res: Response) => {
     try {

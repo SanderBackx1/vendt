@@ -50,15 +50,18 @@ class MachineController extends CrudController {
     res.json(response);
   }
   public async read(req: Request, res: Response) {
+    
     const { fromCompany } = req.body;
     const { company } = req.body.user;
-    const { id } = req.body.qry;
+    const { id } = req.query;
+
 
     if (!id) throw new Error("id is required");
     const response = await Machine.findOne({
       _id: id,
       company: fromCompany || company,
     });
+    if(!response) throw new Error("machine not found")
     res.json(response);
   }
   public async readAll(req: Request, res: Response) {
