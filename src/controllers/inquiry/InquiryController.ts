@@ -28,6 +28,8 @@ class InquiryController extends CrudController {
     if (!machine) throw new Error("machine not found");
 
     const user: IUser = await User.findOne({ rfid, company: machine.company });
+    console.log(machine.company);
+    console.log(user);
     if (!user) throw new Error("User not found");
 
     if (machine.stock <= 0) {
@@ -179,7 +181,12 @@ class InquiryController extends CrudController {
       );
     }
 
-    res.json(response);
+    const message = MessageGenerator.generate(
+      machine.layout.okTakeOutSuccessful,
+      inquiry.user
+    );
+
+    res.json({status:'success', message});
   }
 
   public async failure(req: Request, res: Response) {
