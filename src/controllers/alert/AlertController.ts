@@ -15,39 +15,51 @@ class AlertController extends CrudController {
       tag,
       urgency,
     };
-    if(req.body?.machineId ||machine  ){
-        const machineId = req.body?.machineId ||machine 
-        if(!Types.ObjectId.isValid(machineId)) throw new Error("MachineId not valid")
-        alert = {...alert, machine:machineId}
+    if (req.body?.machineId || machine) {
+      const machineId = req.body?.machineId || machine;
+      if (!Types.ObjectId.isValid(machineId))
+        throw new Error("MachineId not valid");
+      alert = { ...alert, machine: machineId };
     }
-    if(user){
-        if(!Types.ObjectId.isValid(user)) throw new Error("user not valid")
-        alert = {...alert, user:req.body.user._id}
+    if (user) {
+      if (!Types.ObjectId.isValid(user)) throw new Error("user not valid");
+      alert = { ...alert, user: req.body.user._id };
     }
-    
+
     const response = await Alert.create(alert);
-    res.json(response)
+    res.json(response);
   }
 
   public async read(req: Request, res: Response) {
-    const {machine, id, user, tag} = req.query
+    const { machine, id, user, tag } = req.query;
 
-    const query  = {
+    const query = {
       machine,
-      _id:id,
+      _id: id,
       user,
       tag,
-    }
+    };
 
-    const toSearch = filter(query)
+    const toSearch = filter(query);
 
     const response = await Alert.find(toSearch);
-    res.json(response)
-
-
+    res.json(response);
   }
   public async update(req: Request, res: Response) {
-    throw new Error("update not yet implemented");
+    const { qry } = req.body;
+    const { msg, urgency, tag, user, machine, id } = qry;
+    let alert: IAlert = {
+      msg,
+      tag,
+      urgency,
+      user,
+      machine,
+    };
+
+    const update = filter(alert);
+    const response = await Alert.findByIdAndUpdate({_id:id}, {...update}, {new:true, useFindAndModify:false})
+    res.json(response)
+
   }
   public async delete(req: Request, res: Response) {
     throw new Error("delete not yet implemented");
