@@ -244,7 +244,7 @@ export const writeAlert = async (
 ) => {
   try {
     const { role } = req.body.user;
-    if (!role || !(role.permissions.alert == "write")) {
+    if (!role || !(role.permissions.alerts == "write")) {
       throw new Error("User has no user write rights");
     }
     next();
@@ -263,8 +263,8 @@ export const readAlert = async (
     if (
       !role ||
       !(
-        role.permissions.alert == "read" ||
-        role.permissions.alert == "write"
+        role.permissions.alerts == "read" ||
+        role.permissions.alerts == "write"
       )
     ) {
       throw new Error("User has no user write rights");
