@@ -7,6 +7,7 @@ import { Types } from "mongoose";
 import filter from "../../helpers/filter"
 import bcrypt from "bcrypt";
 import { CompletedInquiry } from "../../model/CompletedInquiry";
+import { Alert } from "../../model/Alert";
 
 class UserController extends CrudController {
   constructor() {
@@ -78,14 +79,20 @@ class UserController extends CrudController {
   public async read(req: Request, res: Response) {
     try {
       const { _id } = req.body.user;
-      const {id, inquiries} = req.query
+      const {id, inquiries,alerts} = req.query
       const idToFind = id ? id : _id;
       if (Types.ObjectId.isValid(idToFind)) {
         let user = await User.findById({ _id: idToFind }, {password:0}).populate("role").populate("company");
+        user = user._doc
         if(inquiries && user){
           const inquiries = await this.fetchUserInquiries(idToFind);
-          user = {...user._doc, inquiries}
+          user = {...user, inquiries}
         }
+        if(alerts && user){
+          const alerts = await this.fetchUserAlerts(idToFind);
+          user = {...user, alerts}
+        }
+
         res.json(user);
       } else {
         res.status(401).json({ error: "Bad id" });
@@ -147,7 +154,14 @@ class UserController extends CrudController {
   }
 
   private async fetchUserInquiries(userId:string){
-    return await CompletedInquiry.find({user:userId});
+    return await CompletedInquiry.find({user:userId}).sort({createdAt:-1});
+  }
+  private async fetchUserAlerts(userId:string){
+    return await Alert.find({user:userId}).sort({createdAt:-1});
+  }
+  private async fetchAlertsWithTags(tags:string[]){
+    
+
   }
 
   public async readAll(req: Request, res: Response) {

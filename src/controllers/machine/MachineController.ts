@@ -8,6 +8,7 @@ import { User } from "../../model/User";
 import { Types } from "mongoose";
 import filter from "../../helpers/filter";
 import { CompletedInquiry } from "../../model/CompletedInquiry";
+import { Alert } from "../../model/Alert";
 
 const roleManager = RoleManager.Instance;
 class MachineController extends CrudController {
@@ -54,7 +55,7 @@ class MachineController extends CrudController {
     
     const { fromCompany } = req.body;
     const { company } = req.body.user;
-    const { id, inquiries } = req.query;
+    const { id, inquiries,alerts } = req.query;
 
 
     if (!id) throw new Error("id is required");
@@ -62,10 +63,15 @@ class MachineController extends CrudController {
       _id: id,
       company: fromCompany || company,
     }).populate("user", {password:0}).populate("company");
+    response = response._doc
 
     if(inquiries && response){
       const inquiries = await this.fetchMachineInquiries(id as string);
-      response = {...response._doc, inquiries}
+      response = {...response, inquiries}
+    }
+    if(alerts && response){
+      const alerts = await this.fetchMachineAlerts(id as string);
+      response = {...response, alerts}
     }
 
     if(!response) throw new Error("machine not found")
@@ -137,6 +143,9 @@ class MachineController extends CrudController {
   private async fetchMachineInquiries(machineId:string){
     return await CompletedInquiry.find({machine:machineId}).populate({path:"user", select:"firstname lastname email"}).sort({createdAt:-1});
   }
+  private async fetchMachineAlerts(machineId:string){
+    return await Alert.find({machine:machineId}).sort({createdAt:-1});
+  }
   public async motd(req:Request,res:Response){
     const {machineId} = req.query
     const response = await Machine.findOne({
@@ -154,3 +163,4 @@ class MachineController extends CrudController {
   }
 }
 export const machineController = new MachineController();
+
