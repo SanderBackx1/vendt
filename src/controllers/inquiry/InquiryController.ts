@@ -12,7 +12,7 @@ import {
   CompletedInquiry,
   ICompletedInquiry,
 } from "../../model/CompletedInquiry";
-
+import crypto from 'crypto'
 class InquiryController extends CrudController {
   constructor() {
     super();
@@ -88,19 +88,24 @@ class InquiryController extends CrudController {
 
   public async create(req: Request, res: Response) {
     if (!process.env.TOKEN_SECRET) throw new Error("Server error");
-    const { user, qry } = req.body;
+    const { user } = req.body;
 
     if (user.maxItems - (user.itemsUsed ?? 0) <= 0) {
       throw new Error("User has no more credits");
     }
-
-    const { qr, ttl } = qry;
-    if (!qr) throw new Error("no qr code found");
+    let qr = '';
+    let ttl = 0;
+    if(req.body?.qry){
+      qr = req.body.qry.qr
+      ttl = req.body.qry.ttl
+    }
     const { company } = user;
     if (!company && !ttl) throw new Error("Couldn't determine ttl");
 
+    const serverQr = crypto.randomBytes(5).toString('hex');
+
     const inquiry: IQRInquiry = {
-      qrCode: qr,
+      qrCode: qr||serverQr,
       ttl:ttl || company.ttl,
       user: user._id,
     };
@@ -155,7 +160,7 @@ class InquiryController extends CrudController {
     if (!Types.ObjectId.isValid(qrinquiryId))
       throw new Error("machineId not valid");
 
-    const inquiry = await QRInquiry.findOne({ _id: qrinquiryId });
+    const inquiry = await QRInquiry.findOne({ _id: qrinquiryId }).populate("user");;
     if (!inquiry) throw new Error("inquiry not found");
 
     const machine = await Machine.findOne({ _id: machineId });

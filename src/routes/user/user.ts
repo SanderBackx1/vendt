@@ -27,7 +27,7 @@ router.get("/all", secured, readUser, async (req: Request, res: Response) => {
 //-----------------------
 //USER WRITE RIGHTS NEEDED
 //-----------------------
-router.post("/", securedWithQuery, writeUser, checkIfUpdate, async (req: Request, res: Response) => {
+router.post("/", securedWithQuery, checkIfUpdate, async (req: Request, res: Response) => {
   try {
     await userController.create(req, res);
   } catch (err) {
@@ -63,6 +63,14 @@ router.get("/me", secured,async (req: Request, res: Response) => {
 
 //INQUIRY
 router.post("/inquiry",secured, async (req: Request, res: Response) => {
+  try {
+    await inquiryController.create(req, res);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+//INQUIRY
+router.get("/inquiry",secured, async (req: Request, res: Response) => {
   try {
     await inquiryController.create(req, res);
   } catch (err) {

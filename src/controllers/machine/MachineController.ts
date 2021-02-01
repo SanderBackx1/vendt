@@ -135,7 +135,22 @@ class MachineController extends CrudController {
     res.json(response);
   }
   private async fetchMachineInquiries(machineId:string){
-    return await CompletedInquiry.find({machine:machineId}).populate({path:"user", select:"firstname lastname email"});
+    return await CompletedInquiry.find({machine:machineId}).populate({path:"user", select:"firstname lastname email"}).sort({createdAt:-1});
+  }
+  public async motd(req:Request,res:Response){
+    const {machineId} = req.query
+    const response = await Machine.findOne({
+      _id: machineId
+    })
+    const {layout} = response
+    if (!layout) throw new Error("no layout found")
+    const {motd} = layout
+    if (!motd) throw new Error("no motd found")
+
+
+    
+    res.json({status:"success", message:motd})
+
   }
 }
 export const machineController = new MachineController();

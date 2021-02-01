@@ -15,6 +15,7 @@ class UserController extends CrudController {
   public async create(req: Request, res: Response) {
     try {
       const { company } = req.body.user;
+      const userrole = req.body.user.role
       const {
         firstname,
         role,
@@ -25,6 +26,9 @@ class UserController extends CrudController {
         password,
       } = req.body.qry;
 
+      if (!userrole || !(userrole.permissions.users == "write")) {
+        throw new Error("User has no user write rights");
+      }
       if (!firstname) throw new Error("firstname not found");
       if (!lastname) throw new Error("lastname not found");
       if (!email) throw new Error("email not found");
@@ -101,6 +105,12 @@ class UserController extends CrudController {
       password,
       maxItems
     } = req.body.qry;
+    const userrole = req.body.user.role
+    const uid = req.body.user._id
+
+    if ( id != uid && (!userrole || !(userrole.permissions.users == "write"))) {
+      throw new Error("User has no user write rights");
+    }
 
     let newMax:any = undefined;
     if(role){
@@ -122,7 +132,8 @@ class UserController extends CrudController {
     };
     const filteredUser = filter(user);
     const response = await User.updateOne({ _id: id }, { ...filteredUser });
-    res.json(response);
+    let userResponse = await User.findById({ _id: id }, {password:0}).populate("role").populate("company");
+    res.json(userResponse);
   }
   public async delete(req: Request, res: Response) {
     const { id } = req.body.qry;

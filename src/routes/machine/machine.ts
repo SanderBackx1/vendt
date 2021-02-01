@@ -117,3 +117,11 @@ router.post("/failure", async(req:Request, res:Response)=>{
     res.status(400).json({ error: err.message });
   }
 })
+router.get("/motd",async(req:Request, res:Response)=>{
+  try{
+    await machineController.motd(req,res);
+
+  }catch(err){
+    res.status(400).json({ error: err.message });
+  }
+})
