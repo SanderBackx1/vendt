@@ -62,7 +62,10 @@ class AlertController extends CrudController {
 
   }
   public async delete(req: Request, res: Response) {
-    throw new Error("delete not yet implemented");
+    const { qry } = req.body;
+    const {  id } = qry;
+    const response = await Alert.findOneAndDelete({_id:id});
+    res.json(response)
   }
 }
 export const alertController = new AlertController();
