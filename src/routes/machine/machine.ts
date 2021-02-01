@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { inquiryController } from "../../controllers/inquiry/InquiryController";
 import { machineController } from "../../controllers/machine/MachineController";
+import { alertController } from "../../controllers/alert/AlertController";
 import {
   securedWithQuery,
   readMachine,
@@ -120,6 +121,14 @@ router.post("/failure", async(req:Request, res:Response)=>{
 router.get("/motd",async(req:Request, res:Response)=>{
   try{
     await machineController.motd(req,res);
+
+  }catch(err){
+    res.status(400).json({ error: err.message });
+  }
+})
+router.post("/alert", securedMachineWithQuery,async(req:Request, res:Response)=>{
+  try{
+    await alertController.createFromMachine(req,res);
 
   }catch(err){
     res.status(400).json({ error: err.message });
