@@ -236,6 +236,45 @@ export const readInquiry = async (
   }
 };
 
+
+export const writeAlert = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { role } = req.body.user;
+    if (!role || !(role.permissions.alert == "write")) {
+      throw new Error("User has no user write rights");
+    }
+    next();
+  } catch (err) {
+    res.status(401).json({ error: err.message });
+  }
+};
+
+export const readAlert = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { role } = req.body.user;
+    if (
+      !role ||
+      !(
+        role.permissions.alert == "read" ||
+        role.permissions.alert == "write"
+      )
+    ) {
+      throw new Error("User has no user write rights");
+    }
+    next();
+  } catch (err) {
+    res.status(401).json({ error: err.message });
+  }
+};
+
 export const securedMachine = async (
   req: Request,
   res: Response,
