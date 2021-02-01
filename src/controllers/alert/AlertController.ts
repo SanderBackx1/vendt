@@ -22,3 +22,4 @@ class AlertController extends CrudController{
     }
    
 }
+export const alertController = new AlertController()
