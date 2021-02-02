@@ -6,7 +6,8 @@ import {
   secured,
   securedWithQuery,
   writeCompany,
-  isGlobalAdmin
+  isGlobalAdmin,
+  checkGlobal
 } from "../../middleware";
 
 export const router = express.Router({
@@ -34,7 +35,7 @@ router.post(
     }
   }
 );
-router.post("/", async (req: Request, res: Response) => {
+router.post("/",checkGlobal, async (req: Request, res: Response) => {
   try {
     await companyController.update(req, res);
   } catch (err) {
@@ -42,7 +43,7 @@ router.post("/", async (req: Request, res: Response) => {
   }
 });
 
-router.post("/delete", async (req: Request, res: Response) => {
+router.post("/delete",securedWithQuery, isGlobalAdmin, async (req: Request, res: Response) => {
   try {
     await companyController.delete(req, res);
   } catch (err) {

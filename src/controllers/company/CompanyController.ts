@@ -95,7 +95,13 @@ class CompanyController extends CrudController {
     res.json(response);
   }
   public async delete(req: Request, res: Response) {
-    throw new Error("Not implemented yet");
+    const { qry } = req.body;
+    const {id} = qry;
+    const company = req.body?.user?.company?._id
+    if(id == company) throw new Error("Can't delete a company you are an user from")
+
+    const response = await Company.deleteOne({_id:id})
+    res.json(response)
   }
 }
 

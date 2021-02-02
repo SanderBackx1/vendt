@@ -28,8 +28,8 @@ export const secured = async (
 ) => {
   try {
     if (!process.env.TOKEN_SECRET) throw new Error("Server error");
-    const  auth  = req.headers?.authorization?.split(' ')[1];
-    if(!auth) throw new Error("no auth found")
+    const auth = req.headers?.authorization?.split(" ")[1];
+    if (!auth) throw new Error("no auth found");
     const authData = jwt.verify(
       auth,
       process.env.TOKEN_SECRET
@@ -236,7 +236,6 @@ export const readInquiry = async (
   }
 };
 
-
 export const writeAlert = async (
   req: Request,
   res: Response,
@@ -262,10 +261,7 @@ export const readAlert = async (
     const { role } = req.body.user;
     if (
       !role ||
-      !(
-        role.permissions.alerts == "read" ||
-        role.permissions.alerts == "write"
-      )
+      !(role.permissions.alerts == "read" || role.permissions.alerts == "write")
     ) {
       throw new Error("User has no user write rights");
     }
@@ -314,14 +310,30 @@ export const checkGlobal = async (
 ) => {
   try {
     const { role } = req.body.user;
-    if (req.body?.qry?.fromCompany){
+    if (req.body?.qry?.fromCompany) {
       if (role.permissions.global) {
         next();
       } else {
         throw new Error("User is no global admin");
       }
-    }else{
+    } else {
       next();
+    }
+  } catch (err) {
+    res.status(401).json({ error: err.message });
+  }
+};
+export const isGlobalAdmin = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { role } = req.body.user;
+    if (role.permissions.global) {
+      next();
+    } else {
+      throw new Error("User is no global admin");
     }
   } catch (err) {
     res.status(401).json({ error: err.message });
@@ -344,7 +356,11 @@ export const hasRFID = async (
 };
 export const securedWithQuery = [secured, hasQuery];
 export const securedMachineWithQuery = [securedMachine, hasQuery];
-export const securedMachineWithQueryHasRFID = [securedMachine, hasQuery, hasRFID];
+export const securedMachineWithQueryHasRFID = [
+  securedMachine,
+  hasQuery,
+  hasRFID,
+];
 export const securedMachineWithQueryHasQR = [
   securedMachine,
   hasQuery,
