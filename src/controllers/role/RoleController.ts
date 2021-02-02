@@ -1,11 +1,8 @@
 import { Request, Response } from "express";
 import { CrudController } from "../CrudController";
-import RoleManager from "../../manager/RoleManager";
 import { Role, IRole, isIPermissions, IPermissions } from "../../model/Role";
 import { Types } from "mongoose";
 import filter from "../../helpers/filter";
-
-const roleManager = RoleManager.Instance;
 
 class RoleController extends CrudController {
   constructor() {
@@ -47,9 +44,14 @@ class RoleController extends CrudController {
       const { company } = req.body.user;
       const { id, fromCompany } = req.query;
       if (!id) throw new Error("No id found");
+      if (fromCompany && !Types.ObjectId.isValid(fromCompany as string))
+        throw new Error("fromCompany is not a valid id");
       if (Types.ObjectId.isValid(id as string)) {
         console.log(company._id);
-        const role = await Role.findOne({ _id: id, company: company._id });
+        const role = await Role.findOne({
+          _id: id,
+          company: fromCompany || company._id,
+        });
         res.json(role);
       } else {
         throw new Error("id is not valid");
@@ -62,8 +64,16 @@ class RoleController extends CrudController {
     const { qry } = req.body;
     const { company } = req.body.user;
     const { id } = qry;
-    const { name, defaultMaxItems, permissions, subscriptionOnTags } = qry;
+    const {
+      name,
+      defaultMaxItems,
+      permissions,
+      subscriptionOnTags,
+      fromCompany,
+    } = qry;
 
+    if (fromCompany && !Types.ObjectId.isValid(fromCompany as string))
+      throw new Error("fromCompany is not a valid id");
     const role: IRole = {
       company: company._id,
       defaultMaxItems,
@@ -71,7 +81,10 @@ class RoleController extends CrudController {
       permissions,
       subscriptionOnTags,
     };
-    const previous = await Role.findOne({ _id: id });
+    const previous = await Role.findOne({
+      _id: id,
+      company: fromCompany || company,
+    });
 
     let filteredUpdate = filter(role);
     const newPermissions = {
@@ -80,24 +93,31 @@ class RoleController extends CrudController {
     };
     filteredUpdate.permissions = newPermissions;
     const response = await Role.findOneAndUpdate(
-      { _id: id },
+      { _id: id, company: fromCompany || company?._id },
       { ...filteredUpdate },
       { new: true, useFindAndModify: false }
     );
     res.json(response);
   }
   public async delete(req: Request, res: Response) {
-    const { id } = req.body;
+    const { id, fromCompany } = req.body?.qry;
+    const { company } = req.body.user;
     if (!id) throw new Error("No id found");
     if (Types.ObjectId.isValid(id)) {
-      const response = await Role.findByIdAndDelete({ _id: id });
+      const response = await Role.findByIdAndDelete({
+        _id: id,
+        company: fromCompany || company._id,
+      });
       res.json(response);
     } else {
       throw new Error("id is not valid");
     }
   }
   public async readAll(req: Request, res: Response) {
-    const response = await Role.find({});
+    const { fromCompany } = req.query;
+    const { company } = req.body.user;
+
+    const response = await Role.find({ company: fromCompany || company._id });
     res.json(response);
   }
 }

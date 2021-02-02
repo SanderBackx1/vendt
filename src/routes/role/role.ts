@@ -7,6 +7,7 @@ import {
   secured,
   securedWithQuery,
   checkIfUpdate,
+  checkGlobal,
 } from "../../middleware";
 
 //Middleware for users because there is no role permission. We just check if they have read/write for users
@@ -17,7 +18,7 @@ export const router = express.Router({
 router.get(
   "/",
   secured,
-  readUser,
+  readUser,checkGlobal,
   async (req: Request, res: Response) => {
     try {
       await roleController.read(req, res);
@@ -26,7 +27,7 @@ router.get(
     }
   }
 );
-router.get("/all", secured, readUser, async (req: Request, res: Response) => {
+router.get("/all", secured, readUser,checkGlobal, async (req: Request, res: Response) => {
   try {
     await roleController.readAll(req, res);
   } catch (err) {
@@ -37,6 +38,7 @@ router.post(
   "/",
   securedWithQuery,
   writeUser,
+  checkGlobal,
   checkIfUpdate,
   async (req: Request, res: Response) => {
     try {
@@ -59,6 +61,7 @@ router.post(
   "/delete",
   securedWithQuery,
   writeUser,
+  checkGlobal,
   async (req: Request, res: Response) => {
     try {
       await roleController.delete(req, res);

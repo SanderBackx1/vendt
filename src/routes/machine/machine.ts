@@ -11,7 +11,7 @@ import {
   securedMachineWithQuery,
   securedMachineWithQueryHasQR,
   securedMachineWithQueryHasRFID,
-  hasRFID
+  checkGlobal  
 
 } from "../../middleware";
 
@@ -21,6 +21,7 @@ router.get(
   "/",
   secured,
   readMachine,
+  checkGlobal,
   async (req: Request, res: Response) => {
     try {
       await machineController.read(req, res);
@@ -33,8 +34,9 @@ router.get(
 router.post(
   "/",
   securedWithQuery,
-  checkIfUpdate,
   writeMachine,
+  checkGlobal,
+  checkIfUpdate,
   async (req: Request, res: Response) => {
     try {
       await machineController.create(req, res);
@@ -56,6 +58,7 @@ router.get(
   "/all",
   secured,
   readMachine,
+  checkGlobal,
   async (req: Request, res: Response) => {
     try {
       await machineController.readAll(req, res);
@@ -69,6 +72,7 @@ router.post(
   "/delete",
   securedWithQuery,
   writeMachine,
+  checkGlobal,
   async (req: Request, res: Response) => {
     try {
       await machineController.delete(req, res);
