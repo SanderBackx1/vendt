@@ -42,6 +42,13 @@ router.post("/",checkGlobal, async (req: Request, res: Response) => {
     res.status(500).json({ error: err.message });
   }
 });
+router.post("/all",checkGlobal, async (req: Request, res: Response) => {
+  try {
+    await companyController.readAll(req, res);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 router.post("/delete",securedWithQuery, isGlobalAdmin, async (req: Request, res: Response) => {
   try {
