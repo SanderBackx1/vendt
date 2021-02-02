@@ -12,12 +12,12 @@ class AlertController extends CrudController {
     const { qry } = req.body;
     const company = req.body?.user?.company?._id
     if(!company) throw new Error("Company not found")
-    const { msg, urgency, tag, user, machine } = qry;
+    const { msg, urgency, tag, user, machine, fromCompany } = qry;
     let alert: IAlert = {
       msg,
       tag,
       urgency,
-      company
+      company: fromCompany??company
     };
     if (req.body?.machineId || machine) {
       const machineId = req.body?.machineId || machine;
@@ -59,25 +59,26 @@ class AlertController extends CrudController {
     res.json(response);
   }
   public async read(req: Request, res: Response) {
-    const { machine, id, user, tag } = req.query;
+    const { machine, id, user, tag, fromCompany } = req.query;
     const company = req.body?.user?.company?._id
-    if(!company) throw new Error("Company not found")
     const query = {
       machine,
       _id: id,
       user,
       tag,
-      company
+      company:fromCompany??company
     };
 
     const toSearch = filter(query);
 
     const response = await Alert.find(toSearch);
+
     res.json(response);
   }
   public async update(req: Request, res: Response) {
     const { qry } = req.body;
-    const { msg, urgency, tag, user, machine, id } = qry;
+    const { msg, urgency, tag, user, machine, id, fromCompany } = qry;
+    const company = req.body?.user?.company?._id
     let alert: IAlert = {
       msg,
       tag,
@@ -87,14 +88,15 @@ class AlertController extends CrudController {
     };
 
     const update = filter(alert);
-    const response = await Alert.findByIdAndUpdate({_id:id}, {...update}, {new:true, useFindAndModify:false})
+    const response = await Alert.findByIdAndUpdate({_id:id, company:fromCompany??company}, {...update}, {new:true, useFindAndModify:false})
     res.json(response)
 
   }
   public async delete(req: Request, res: Response) {
     const { qry } = req.body;
-    const {  id } = qry;
-    const response = await Alert.findOneAndDelete({_id:id});
+    const company = req.body?.user?.company?._id
+    const {  id, fromCompany } = qry;
+    const response = await Alert.findOneAndDelete({_id:id, company:fromCompany??company});
     res.json(response)
   }
 }

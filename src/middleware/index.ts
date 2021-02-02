@@ -307,17 +307,21 @@ export const isQrInquiry = async (
     res.status(401).json({ error: err.message });
   }
 };
-export const isGlobalAdmin = async (
+export const checkGlobal = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
   try {
     const { role } = req.body.user;
-    if (role.permissions.global) {
+    if (req.body?.qry?.fromCompany){
+      if (role.permissions.global) {
+        next();
+      } else {
+        throw new Error("User is no global admin");
+      }
+    }else{
       next();
-    } else {
-      throw new Error("User is no global admin");
     }
   } catch (err) {
     res.status(401).json({ error: err.message });

@@ -2,8 +2,8 @@ import { Router, Request, Response, response } from "express";
 import { alertController } from "../../controllers/alert/AlertController";
 export const router = Router();
 
-import { checkIfUpdate,readAlert,writeAlert, secured, securedWithQuery } from "../../middleware";
-router.get("/", secured,readAlert, async (req: Request, res: Response) => {
+import { checkIfUpdate,readAlert,writeAlert, secured, securedWithQuery, checkGlobal } from "../../middleware";
+router.get("/", secured,readAlert, checkGlobal, async (req: Request, res: Response) => {
   try {
     await alertController.read(req, res);
   } catch (err) {
@@ -15,6 +15,7 @@ router.post(
   securedWithQuery,
   writeAlert,
   checkIfUpdate,
+  checkGlobal,
   async (req: Request, res: Response) => {
     try {
       await alertController.create(req, res);
@@ -30,7 +31,7 @@ router.post("/", async (req: Request, res: Response) => {
     res.status(500).json({ error: err.message });
   }
 });
-router.post("/delete",writeAlert,securedWithQuery, async (req: Request, res: Response) => {
+router.post("/delete",writeAlert,securedWithQuery,checkGlobal, async (req: Request, res: Response) => {
   try {
     await alertController.delete(req, res);
   } catch (err) {
