@@ -24,6 +24,8 @@ class AlertController extends CrudController {
       if (!Types.ObjectId.isValid(machineId))
         throw new Error("MachineId not valid");
       alert = { ...alert, machine: machineId };
+
+      Machine.findByIdAndUpdate({_id:machineId}, {status:urgency});
     }
     if (user) {
       if (!Types.ObjectId.isValid(user)) throw new Error("user not valid");

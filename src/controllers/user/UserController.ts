@@ -103,9 +103,17 @@ class UserController extends CrudController {
         }
         if (alerts && user) {
           const alerts = await this.fetchUserAlerts(idToFind);
-          user = { ...user, alerts };
+          if (alerts) {
+            user = { ...user, userAlerts: alerts };
+          }
+          const subscriptions = user.role?.subscriptionOnTags;
+          if (subscriptions) {
+            const tagAlerts = await this.fetchAlertsWithTags(subscriptions);
+            if (tagAlerts) {
+              user = { ...user, userAlerts: alerts, tagAlerts: tagAlerts };
+            }
+          }
         }
-
         res.json(user);
       } else {
         res.status(401).json({ error: "Bad id" });
@@ -186,7 +194,9 @@ class UserController extends CrudController {
   private async fetchUserAlerts(userId: string) {
     return await Alert.find({ user: userId }).sort({ createdAt: -1 });
   }
-  private async fetchAlertsWithTags(tags: string[]) {}
+  private async fetchAlertsWithTags(tags: string[]) {
+    return await Alert.find({ tag: { $in: tags } }).sort({createdAt:-1});
+  }
 
   public async readAll(req: Request, res: Response) {
     try {

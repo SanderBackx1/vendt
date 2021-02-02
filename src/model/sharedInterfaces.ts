@@ -40,3 +40,4 @@ export interface TokenInterface {
   company: string;
   iat: number;
 }
+export type Urgency = "OK"|"low"|"medium"|"high"
