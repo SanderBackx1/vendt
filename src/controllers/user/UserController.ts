@@ -202,6 +202,8 @@ class UserController extends CrudController {
     try {
       const { company } = req.body.user;
       const { fromCompany } = req.query;
+      if (fromCompany && !Types.ObjectId.isValid(fromCompany as string))
+      throw new Error("fromCompany is not a valid id");
       const response = await User.find(
         { company: fromCompany || company._id },
         { password: 0 }

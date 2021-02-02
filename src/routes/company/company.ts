@@ -42,7 +42,7 @@ router.post("/",checkGlobal, async (req: Request, res: Response) => {
     res.status(500).json({ error: err.message });
   }
 });
-router.post("/all",checkGlobal, async (req: Request, res: Response) => {
+router.post("/all",readCompany,isGlobalAdmin, async (req: Request, res: Response) => {
   try {
     await companyController.readAll(req, res);
   } catch (err) {
