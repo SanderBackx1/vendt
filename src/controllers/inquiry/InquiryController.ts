@@ -12,7 +12,7 @@ import {
   CompletedInquiry,
   ICompletedInquiry,
 } from "../../model/CompletedInquiry";
-import crypto from 'crypto'
+import crypto from "crypto";
 class InquiryController extends CrudController {
   constructor() {
     super();
@@ -28,8 +28,6 @@ class InquiryController extends CrudController {
     if (!machine) throw new Error("machine not found");
 
     const user: IUser = await User.findOne({ rfid, company: machine.company });
-    console.log(machine.company);
-    console.log(user);
     if (!user) throw new Error("User not found");
 
     if (machine.stock <= 0) {
@@ -63,13 +61,17 @@ class InquiryController extends CrudController {
 
     const machine: MachineDocument = await Machine.findOne({ _id: machineId });
     if (!machine) throw new Error("machine not found");
-    console.log(qr)
     const inquiry = await QRInquiry.findOne({ qrCode: qr }).populate("user");
     if (!inquiry) {
       return res.json({
         status: "error",
         message: machine.layout.errQrNotValid,
       });
+    }
+    if (inquiry?.user) {
+      if (machine.company != inquiry?.user?.company) {
+        throw new Error("User not from the same company as the machine");
+      }
     }
     if (machine.stock <= 0) {
       const message = MessageGenerator.generate(
@@ -93,21 +95,21 @@ class InquiryController extends CrudController {
     if (user.maxItems - (user.itemsUsed ?? 0) <= 0) {
       throw new Error("User has no more credits");
     }
-    let qr = '';
+    let qr = "";
     let ttl = 0;
-    if(req.body?.qry){
-      qr = req.body.qry.qr
-      ttl = req.body.qry.ttl
+    if (req.body?.qry) {
+      qr = req.body?.qry?.qr;
+      ttl = req.body?.qry?.ttl;
     }
     const { company } = user;
     if (!company && !ttl) throw new Error("Couldn't determine ttl");
 
-    const serverQr = crypto.randomBytes(5).toString('hex');
+    const serverQr = crypto.randomBytes(5).toString("hex");
 
     const inquiry: IQRInquiry = {
-      qrCode: qr||serverQr,
-      ttl:ttl || company.ttl,
-      user: user._id,
+      qrCode: qr || serverQr,
+      ttl: ttl || company.ttl,
+      user: user?._id,
     };
     const response = await QRInquiry.create(inquiry);
     res.json(response);
@@ -142,11 +144,13 @@ class InquiryController extends CrudController {
           lastService: Date.now(),
         }
       );
-      const newUsed = user.itemsUsed?user.itemsUsed +=1:1;
-      await User.updateOne({
-        _id:user._id,
-
-      },{itemsUsed:newUsed})
+      const newUsed = user.itemsUsed ? (user.itemsUsed += 1) : 1;
+      await User.updateOne(
+        {
+          _id: user._id,
+        },
+        { itemsUsed: newUsed }
+      );
     }
 
     res.json(response);
@@ -160,7 +164,9 @@ class InquiryController extends CrudController {
     if (!Types.ObjectId.isValid(qrinquiryId))
       throw new Error("machineId not valid");
 
-    const inquiry = await QRInquiry.findOne({ _id: qrinquiryId }).populate("user");;
+    const inquiry = await QRInquiry.findOne({ _id: qrinquiryId }).populate(
+      "user"
+    );
     if (!inquiry) throw new Error("inquiry not found");
 
     const machine = await Machine.findOne({ _id: machineId });
@@ -191,7 +197,7 @@ class InquiryController extends CrudController {
       inquiry.user
     );
 
-    res.json({status:'success', message});
+    res.json({ status: "success", message });
   }
 
   public async failure(req: Request, res: Response) {

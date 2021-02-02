@@ -3,14 +3,11 @@ import { Request, Response } from "express";
 import { isILocation, isILayout } from "../../model/sharedInterfaces";
 import { IMachine, Machine } from "../../model/Machine";
 import { Company } from "../../model/Company";
-import RoleManager from "../../manager/RoleManager";
-import { User } from "../../model/User";
 import { Types } from "mongoose";
 import filter from "../../helpers/filter";
 import { CompletedInquiry } from "../../model/CompletedInquiry";
 import { Alert } from "../../model/Alert";
 
-const roleManager = RoleManager.Instance;
 class MachineController extends CrudController {
   constructor() {
     super();
@@ -24,12 +21,14 @@ class MachineController extends CrudController {
       maxStock,
       status,
       lastService,
+      fromCompany,
     } = req.body.qry;
     if (!name) throw new Error("name is required");
     if (!location) throw new Error("location is required");
     if (!isILocation(location)) throw new Error("location is invalid");
     if (!maxStock) throw new Error("maxStock is required");
-
+    if (fromCompany && !Types.ObjectId.isValid(fromCompany))
+      throw new Error("fromCompany is not a validID");
     const comp = await Company.findOne({ _id: company });
     const { layout } = comp;
     if (!layout) throw new Error("layout is required");
@@ -43,7 +42,7 @@ class MachineController extends CrudController {
       status: status ? status : "good",
       layout,
       user: _id,
-      company,
+      company: fromCompany || company,
     };
 
     if (lastService) newMachine.lastService = lastService;
@@ -52,43 +51,48 @@ class MachineController extends CrudController {
     res.json(response);
   }
   public async read(req: Request, res: Response) {
-    
     const { fromCompany } = req.body;
     const { company } = req.body.user;
-    const { id, inquiries,alerts } = req.query;
+    const { id, inquiries, alerts } = req.query;
 
+    if (fromCompany && !Types.ObjectId.isValid(fromCompany))
+      throw new Error("fromCompany is not a validID");
 
     if (!id) throw new Error("id is required");
     let response = await Machine.findOne({
       _id: id,
       company: fromCompany || company,
-    }).populate("user", {password:0}).populate("company");
-    response = response._doc
+    })
+      .populate("user", { password: 0 })
+      .populate("company");
+    response = response._doc;
 
-    if(inquiries && response){
+    if (inquiries && response) {
       const inquiries = await this.fetchMachineInquiries(id as string);
-      response = {...response, inquiries}
+      response = { ...response, inquiries };
     }
-    if(alerts && response){
+    if (alerts && response) {
       const alerts = await this.fetchMachineAlerts(id as string);
-      response = {...response, alerts}
+      response = { ...response, alerts };
     }
 
-    if(!response) throw new Error("machine not found")
+    if (!response) throw new Error("machine not found");
     res.json(response);
   }
   public async readAll(req: Request, res: Response) {
     const { fromCompany } = req.query;
     const { company } = req.body.user;
+    if (fromCompany && !Types.ObjectId.isValid(fromCompany as string))
+      throw new Error("fromCompany is not a validID");
     const response = await Machine.find({
       company: fromCompany || company,
-    })
+    });
 
     res.json(response);
   }
   public async update(req: Request, res: Response) {
-    const { fromCompany, qry } = req.body;
-    const { company, _id } = req.body.user;
+    const { qry } = req.body;
+    const { company } = req.body.user;
     const {
       name,
       location,
@@ -99,9 +103,13 @@ class MachineController extends CrudController {
       id,
       user,
       layout,
+      fromCompany,
     } = qry;
 
-    const comp = qry?.company
+    const comp = qry?.company;
+    if (fromCompany && !Types.ObjectId.isValid(fromCompany as string))
+      throw new Error("fromCompany is not a validID");
+
     const previous = await Machine.findOne({
       _id: id,
       company: fromCompany || company._id,
@@ -113,7 +121,7 @@ class MachineController extends CrudController {
       maxStock,
       status,
       user,
-      company:comp?comp:undefined,
+      company: comp ? comp : undefined,
       layout,
       lastService,
     };
@@ -130,9 +138,12 @@ class MachineController extends CrudController {
     res.json(response);
   }
   public async delete(req: Request, res: Response) {
-    const { fromCompany, qry } = req.body;
-    const {company} = req.body.user
-    const { id } = qry;
+    const { qry } = req.body;
+    const { company } = req.body.user;
+    const { fromCompany, id } = qry;
+
+    if (fromCompany && !Types.ObjectId.isValid(fromCompany as string))
+      throw new Error("fromCompany is not a validID");
 
     const response = await Machine.deleteOne({
       _id: id,
@@ -140,27 +151,25 @@ class MachineController extends CrudController {
     });
     res.json(response);
   }
-  private async fetchMachineInquiries(machineId:string){
-    return await CompletedInquiry.find({machine:machineId}).populate({path:"user", select:"firstname lastname email"}).sort({createdAt:-1});
+  private async fetchMachineInquiries(machineId: string) {
+    return await CompletedInquiry.find({ machine: machineId })
+      .populate({ path: "user", select: "firstname lastname email" })
+      .sort({ createdAt: -1 });
   }
-  private async fetchMachineAlerts(machineId:string){
-    return await Alert.find({machine:machineId}).sort({createdAt:-1});
+  private async fetchMachineAlerts(machineId: string) {
+    return await Alert.find({ machine: machineId }).sort({ createdAt: -1 });
   }
-  public async motd(req:Request,res:Response){
-    const {machineId} = req.query
+  public async motd(req: Request, res: Response) {
+    const { machineId } = req.query;
     const response = await Machine.findOne({
-      _id: machineId
-    })
-    const {layout} = response
-    if (!layout) throw new Error("no layout found")
-    const {motd} = layout
-    if (!motd) throw new Error("no motd found")
+      _id: machineId,
+    });
+    const { layout } = response;
+    if (!layout) throw new Error("no layout found");
+    const { motd } = layout;
+    if (!motd) throw new Error("no motd found");
 
-
-    
-    res.json({status:"success", message:motd})
-
+    res.json({ status: "success", message: motd });
   }
 }
 export const machineController = new MachineController();
-
