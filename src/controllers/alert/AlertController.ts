@@ -4,6 +4,7 @@ import { Types } from "mongoose";
 import { Alert, IAlert } from "../../model/Alert";
 import filter from "../../helpers/filter";
 import { Machine } from "../../model/Machine";
+import { Urgency } from "../../model/sharedInterfaces";
 class AlertController extends CrudController {
   constructor() {
     super();
@@ -19,6 +20,9 @@ class AlertController extends CrudController {
       urgency,
       company: fromCompany??company
     };
+    if(urgency != "OK" && urgency != "low" && urgency != "medium" && urgency != "high"){
+      throw new Error("Urgency has to be 'OK', 'low', 'medium' or 'high' to be valid")
+    }
     if (req.body?.machineId || machine) {
       const machineId = req.body?.machineId || machine;
       if (!Types.ObjectId.isValid(machineId))
