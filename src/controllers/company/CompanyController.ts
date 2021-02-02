@@ -62,6 +62,7 @@ class CompanyController extends CrudController {
 
   public async readAll(req: Request, res: Response) {
     const response = await Company.find();
+    console.log(response)
     res.json(response);
   }
   public async update(req: Request, res: Response) {

@@ -35,14 +35,14 @@ router.post(
     }
   }
 );
-router.post("/",checkGlobal, async (req: Request, res: Response) => {
+router.post("/",secured,checkGlobal, async (req: Request, res: Response) => {
   try {
     await companyController.update(req, res);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
-router.get("/all",readCompany,isGlobalAdmin, async (req: Request, res: Response) => {
+router.get("/all",secured, readCompany,isGlobalAdmin, async (req: Request, res: Response) => {
   try {
     await companyController.readAll(req, res);
   } catch (err) {

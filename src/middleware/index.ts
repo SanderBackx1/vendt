@@ -96,7 +96,6 @@ export const readCompany = async (
 ) => {
   try {
     const { role } = req.body.user;
-
     if (
       !role ||
       !(
