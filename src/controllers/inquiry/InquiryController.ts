@@ -69,7 +69,9 @@ class InquiryController extends CrudController {
       });
     }
     if (inquiry?.user) {
-      if (machine.company != inquiry?.user?.company) {
+      const machinecompany =machine.company.toHexString();
+      const usercompany = inquiry.user.company as string
+      if (machinecompany != usercompany) {
         throw new Error("User not from the same company as the machine");
       }
     }

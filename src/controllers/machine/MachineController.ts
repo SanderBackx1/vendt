@@ -39,7 +39,7 @@ class MachineController extends CrudController {
       location,
       stock: stock ? stock : maxStock,
       maxStock,
-      status: status ? status : "good",
+      status: status ? status : "OK",
       layout,
       user: _id,
       company: fromCompany || company,
@@ -157,7 +157,7 @@ class MachineController extends CrudController {
       .sort({ createdAt: -1 });
   }
   private async fetchMachineAlerts(machineId: string) {
-    return await Alert.find({ machine: machineId }).sort({ createdAt: -1 });
+    return await Alert.find({ machine: machineId }).populate("user", {password:0}).sort({ createdAt: -1 });
   }
   public async motd(req: Request, res: Response) {
     const { machineId } = req.query;
