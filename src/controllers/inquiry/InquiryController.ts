@@ -192,6 +192,7 @@ class InquiryController extends CrudController {
           lastService: Date.now(),
         }
       );
+      User.updateOne({_id:inquiry.user._id}, {itemsUsed:inquiry.user.itemsUsed?inquiry.user.itemsUsed+=1:1})
     }
 
     const message = MessageGenerator.generate(

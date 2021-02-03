@@ -36,6 +36,7 @@ router.post("/register", async (req: Request, res: Response) => {
       email,
       firstname,
       lastname,
+      itemsUsed:0,
       maxItems: defaultRole.defaultMaxItems,
       role: defaultRole,
       date_created: new Date().getTime(),

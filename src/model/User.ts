@@ -9,7 +9,7 @@ export interface IUser {
   maxItems: number;
   rfid?: string;
   role: Types.ObjectId;
-  itemsUsed?: number;
+  itemsUsed: number;
   msid?: string;
   company: string;
 }
