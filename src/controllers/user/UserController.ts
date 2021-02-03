@@ -192,10 +192,10 @@ class UserController extends CrudController {
     });
   }
   private async fetchUserAlerts(userId: string) {
-    return await Alert.find({ user: userId }).sort({ createdAt: -1 });
+    return await Alert.find({ user: userId }).populate('machine', 'name').sort({ createdAt: -1 });
   }
   private async fetchAlertsWithTags(tags: string[]) {
-    return await Alert.find({ tag: { $in: tags } }).sort({createdAt:-1});
+    return await Alert.find({ tag: { $in: tags } }).populate('machine', 'name').sort({createdAt:-1});
   }
 
   public async readAll(req: Request, res: Response) {
