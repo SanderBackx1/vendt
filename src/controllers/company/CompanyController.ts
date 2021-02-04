@@ -5,6 +5,10 @@ import { isILocation, isILayout } from "../../model/sharedInterfaces";
 import filter from "../../helpers/filter";
 import { Role, defaultUser, defaultAdmin } from "../../model/Role";
 import { roleController } from "../role/RoleController";
+import { User } from "../../model/User";
+import { Alert } from "../../model/Alert";
+import { Machine } from "../../model/Machine";
+import { CompletedInquiry } from "../../model/CompletedInquiry";
 class CompanyController extends CrudController {
   constructor() {
     super();
@@ -18,6 +22,7 @@ class CompanyController extends CrudController {
       imageURL,
       resetFrequency,
     } = req.body.qry;
+
     if (!name) throw new Error("name is required");
     if (!location) throw new Error("name is required");
     if (!isILocation(location)) throw new Error("Location is not valid");
@@ -25,6 +30,7 @@ class CompanyController extends CrudController {
     if (!layout) throw new Error("name is required");
     if (!isILayout(layout)) throw new Error("Layout is not valid");
     if (!resetFrequency) throw new Error("resetFrequency not found");
+
     const newCompany: ICompany = {
       name,
       location,
@@ -46,10 +52,8 @@ class CompanyController extends CrudController {
       ...defaultAdmin,
       company: _id,
     });
-
     const roleId = roleResponseUser._id;
     await Company.updateOne({ _id }, { defaultRole: roleId });
-
     res.json(response);
   }
   public async read(req: Request, res: Response) {
@@ -62,7 +66,7 @@ class CompanyController extends CrudController {
 
   public async readAll(req: Request, res: Response) {
     const response = await Company.find();
-    console.log(response)
+    console.log(response);
     res.json(response);
   }
   public async update(req: Request, res: Response) {
@@ -101,12 +105,18 @@ class CompanyController extends CrudController {
   }
   public async delete(req: Request, res: Response) {
     const { qry } = req.body;
-    const {id} = qry;
-    const company = req.body?.user?.company?._id
-    if(id == company) throw new Error("Can't delete a company you are an user from")
+    const { id } = qry;
+    const company = req.body?.user?.company?._id;
+    if (id == company)
+      throw new Error("Can't delete a company you are an user from");
 
-    const response = await Company.deleteOne({_id:id})
-    res.json(response)
+    const response = await Company.deleteOne({ _id: id });
+    User.deleteMany({ company: id });
+    Machine.deleteMany({ company: id });
+    Role.deleteMany({ company: id });
+    Alert.deleteMany({ company: id });
+    CompletedInquiry.deleteMany({ company: id });
+    res.json(response);
   }
 }
 

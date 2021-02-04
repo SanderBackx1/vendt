@@ -29,7 +29,7 @@ class RoleController extends CrudController {
     if (!isIPermissions(permissions))
       throw new Error("permissions is not valid");
     const role: IRole = {
-      company,
+      company: fromCompany||company,
       defaultMaxItems,
       name,
       permissions,

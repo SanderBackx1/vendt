@@ -2,7 +2,7 @@ export interface ILocation {
   street: string;
   number: string;
   city: string;
-  zip: number;
+  zip: string;
   country: string;
 }
 export interface ILayout {

@@ -22,6 +22,7 @@ class MachineController extends CrudController {
       status,
       lastService,
       fromCompany,
+      user,
     } = req.body.qry;
     if (!name) throw new Error("name is required");
     if (!location) throw new Error("location is required");
@@ -29,6 +30,7 @@ class MachineController extends CrudController {
     if (!maxStock) throw new Error("maxStock is required");
     if (fromCompany && !Types.ObjectId.isValid(fromCompany))
       throw new Error("fromCompany is not a validID");
+
     const comp = await Company.findOne({ _id: company });
     const { layout } = comp;
     if (!layout) throw new Error("layout is required");
@@ -41,7 +43,7 @@ class MachineController extends CrudController {
       maxStock,
       status: status ? status : "OK",
       layout,
-      user: _id,
+      user: user || _id,
       company: fromCompany || company,
     };
 
@@ -82,13 +84,21 @@ class MachineController extends CrudController {
   public async readAll(req: Request, res: Response) {
     const { fromCompany } = req.query;
     const { company } = req.body.user;
-    if (fromCompany && !Types.ObjectId.isValid(fromCompany as string))
-      throw new Error("fromCompany is not a validID");
-    const response = await Machine.find({
-      company: fromCompany || company,
-    });
 
-    res.json(response);
+    if (fromCompany == "all") {
+      const response = await Machine.find({
+      });
+
+      res.json(response);
+    } else {
+      if (fromCompany && !Types.ObjectId.isValid(fromCompany as string))
+        throw new Error("fromCompany is not a validID");
+      const response = await Machine.find({
+        company: fromCompany || company,
+      });
+
+      res.json(response);
+    }
   }
   public async update(req: Request, res: Response) {
     const { qry } = req.body;
@@ -157,7 +167,9 @@ class MachineController extends CrudController {
       .sort({ createdAt: -1 });
   }
   private async fetchMachineAlerts(machineId: string) {
-    return await Alert.find({ machine: machineId }).populate("user", {password:0}).sort({ createdAt: -1 });
+    return await Alert.find({ machine: machineId })
+      .populate("user", { password: 0 })
+      .sort({ createdAt: -1 });
   }
   public async motd(req: Request, res: Response) {
     const { machineId } = req.query;
@@ -170,6 +182,15 @@ class MachineController extends CrudController {
     if (!motd) throw new Error("no motd found");
 
     res.json({ status: "success", message: motd });
+  }
+  public async layout(req: Request, res: Response) {
+    const { machineId } = req.query;
+    const response = await Machine.findOne({
+      _id: machineId,
+    });
+    const { layout, name } = response;
+
+    res.json({ status: "success", layout, name });
   }
 }
 export const machineController = new MachineController();

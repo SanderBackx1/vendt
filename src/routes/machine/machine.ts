@@ -130,6 +130,14 @@ router.get("/motd",async(req:Request, res:Response)=>{
     res.status(400).json({ error: err.message });
   }
 })
+router.get("/layout",async(req:Request, res:Response)=>{
+  try{
+    await machineController.layout(req,res);
+
+  }catch(err){
+    res.status(400).json({ error: err.message });
+  }
+})
 router.post("/alert", securedMachineWithQuery,async(req:Request, res:Response)=>{
   try{
     await alertController.createFromMachine(req,res);

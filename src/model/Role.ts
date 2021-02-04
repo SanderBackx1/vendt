@@ -70,6 +70,6 @@ export const defaultAdmin = {
     users: "write",
     global: false,
   },
-  subscriptionOnTags: [],
+  subscriptionOnTags: ['misbruik', 'connection'],
 };
 export const Role: Model<RoleDocument> = model("Role", RoleSchema);

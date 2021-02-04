@@ -69,15 +69,15 @@ class InquiryController extends CrudController {
       });
     }
     if (inquiry?.user) {
-      const machinecompany =machine.company.toHexString();
-      const usercompany = inquiry.user.company as string
+      const machinecompany = machine.company.toHexString();
+      const usercompany = inquiry.user.company as string;
       if (machinecompany != usercompany) {
         throw new Error("User not from the same company as the machine");
       }
     }
     if (machine.stock <= 0) {
       const message = MessageGenerator.generate(
-        machine.layout.errQrNotValid,
+        "Machine geen stock meer",
         inquiry.user
       );
       return res.json({ status: "error", message });
@@ -136,6 +136,7 @@ class InquiryController extends CrudController {
       machine: machineId,
       user: user._id,
       machineName: machine.name,
+      company: user.company,
     };
     const response = await CompletedInquiry.create(completedInquiry);
     if (response?._id) {
@@ -160,7 +161,6 @@ class InquiryController extends CrudController {
   public async successQR(req: Request, res: Response) {
     const { machineId, qry } = req.body;
     const { qrinquiryId } = qry;
-
     if (!Types.ObjectId.isValid(machineId))
       throw new Error("machineId not valid");
     if (!Types.ObjectId.isValid(qrinquiryId))
@@ -180,6 +180,7 @@ class InquiryController extends CrudController {
       machine: machineId,
       user: inquiry.user,
       machineName: machine.name,
+      company: inquiry.user.company,
     };
 
     const response = await CompletedInquiry.create(completedInquiry);
@@ -192,7 +193,12 @@ class InquiryController extends CrudController {
           lastService: Date.now(),
         }
       );
-      User.updateOne({_id:inquiry.user._id}, {itemsUsed:inquiry.user.itemsUsed?inquiry.user.itemsUsed+=1:1})
+      User.updateOne(
+        { _id: inquiry.user._id },
+        {
+          itemsUsed: inquiry.user.itemsUsed ? (inquiry.user.itemsUsed += 1) : 1,
+        }
+      );
     }
 
     const message = MessageGenerator.generate(
@@ -222,7 +228,23 @@ class InquiryController extends CrudController {
   }
 
   public async readAll(req: Request, res: Response) {
-    throw new Error("not implemented yet");
+    try {
+      const { company } = req.body.user;
+      const { fromCompany } = req.query;
+      if (fromCompany == "all") {
+        const response = await CompletedInquiry.find({})
+        res.json(response);
+      } else {
+        if (fromCompany && !Types.ObjectId.isValid(fromCompany as string))
+          throw new Error("fromCompany is not a valid id");
+        const response = await CompletedInquiry.find(
+          { company: fromCompany || company._id },
+        )
+        res.json(response);
+      }
+    } catch (err) {
+      throw err;
+    }
   }
 
   public async update(req: Request, res: Response) {

@@ -25,6 +25,7 @@ class UserController extends CrudController {
         email,
         password,
         fromCompany,
+        itemsUsed,
       } = req.body.qry;
       const userrole = req.body.user.role;
 
@@ -54,12 +55,11 @@ class UserController extends CrudController {
         password: hashPassword,
         maxItems, //Get max items from company
         role,
-        itemsUsed: 0,
-        msid,
-        rfid,
+        itemsUsed: itemsUsed ?? 0,
+        msid: msid ? msid : undefined,
+        rfid: rfid ? rfid : undefined,
       };
       const filteredUser = filter(user);
-
       const response = await User.create(filteredUser);
 
       res.json({ _id: response._id });
@@ -162,7 +162,7 @@ class UserController extends CrudController {
       role,
       itemsUsed: itemsUsed ?? 0,
       rfid,
-      msid
+      msid,
     };
     const filteredUser = filter(user);
     const response = await User.updateOne(
@@ -213,16 +213,27 @@ class UserController extends CrudController {
     try {
       const { company } = req.body.user;
       const { fromCompany } = req.query;
-      if (fromCompany && !Types.ObjectId.isValid(fromCompany as string))
-        throw new Error("fromCompany is not a valid id");
-      const response = await User.find(
-        { company: fromCompany || company._id },
-        { password: 0 }
-      ).populate({
-        path: "role",
-        select: "name",
-      });
-      res.json(response);
+      if (fromCompany == "all") {
+        const response = await User.find(
+          {  },
+          { password: 0 }
+        ).populate({
+          path: "role",
+          select: "name",
+        });
+        res.json(response);
+      } else {
+        if (fromCompany && !Types.ObjectId.isValid(fromCompany as string))
+          throw new Error("fromCompany is not a valid id");
+        const response = await User.find(
+          { company: fromCompany || company._id },
+          { password: 0 }
+        ).populate({
+          path: "role",
+          select: "name",
+        });
+        res.json(response);
+      }
     } catch (err) {
       throw err;
     }
