@@ -10,6 +10,14 @@ router.get("/", secured,readAlert, checkGlobal, async (req: Request, res: Respon
     res.status(500).json({ error: err.message });
   }
 });
+router.get("/tags", secured,readAlert, checkGlobal, async (req: Request, res: Response) => {
+  try {
+    await alertController.tags(req, res);
+    
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 router.post(
   "/",
   securedWithQuery,

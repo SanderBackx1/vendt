@@ -132,6 +132,9 @@ class UserController extends CrudController {
       password,
       maxItems,
       fromCompany,
+      itemsUsed,
+      rfid,
+      msid,
     } = req.body.qry;
     const userrole = req.body.user.role;
     const uid = req.body?.user?._id;
@@ -144,7 +147,8 @@ class UserController extends CrudController {
     if (role) {
       const r = await Role.findById(role);
       newMax = r.defaultMaxItems;
-    } else if (maxItems) {
+    }
+    if (maxItems) {
       newMax = maxItems;
     }
 
@@ -156,7 +160,9 @@ class UserController extends CrudController {
       password,
       maxItems: newMax, //Get max items from company
       role,
-      itemsUsed: 0,
+      itemsUsed: itemsUsed ?? 0,
+      rfid,
+      msid
     };
     const filteredUser = filter(user);
     const response = await User.updateOne(
@@ -192,10 +198,15 @@ class UserController extends CrudController {
     });
   }
   private async fetchUserAlerts(userId: string) {
-    return await Alert.find({ user: userId }).populate('machine', 'name').sort({ createdAt: -1 });
+    return await Alert.find({ user: userId })
+      .populate("machine", "name")
+      .sort({ createdAt: -1 });
   }
   private async fetchAlertsWithTags(tags: string[]) {
-    return await Alert.find({ tag: { $in: tags } }).populate('machine', 'name').populate('user', 'firstname lastname').sort({createdAt:-1});
+    return await Alert.find({ tag: { $in: tags } })
+      .populate("machine", "name")
+      .populate("user", "firstname lastname")
+      .sort({ createdAt: -1 });
   }
 
   public async readAll(req: Request, res: Response) {
@@ -203,7 +214,7 @@ class UserController extends CrudController {
       const { company } = req.body.user;
       const { fromCompany } = req.query;
       if (fromCompany && !Types.ObjectId.isValid(fromCompany as string))
-      throw new Error("fromCompany is not a valid id");
+        throw new Error("fromCompany is not a valid id");
       const response = await User.find(
         { company: fromCompany || company._id },
         { password: 0 }

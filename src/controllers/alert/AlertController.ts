@@ -81,6 +81,22 @@ class AlertController extends CrudController {
 
     res.json(response);
   }
+  public async tags(req:Request, res:Response){
+    const {user} = req.body;
+    const company =user.company._id;
+
+
+    const alerts = await Alert.find({company:company});
+    let tagSet = new Set();
+
+    alerts.forEach((alert:IAlert) => {
+      if(alert.tag){
+        tagSet.add(alert.tag)
+      }
+    })
+
+    res.json({tags:[...tagSet]})
+  }
   public async update(req: Request, res: Response) {
     const { qry } = req.body;
     const { msg, urgency, tag, user, machine, id, fromCompany } = qry;

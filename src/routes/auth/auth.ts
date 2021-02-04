@@ -62,6 +62,7 @@ router.post("/login", async (req: Request, res: Response) => {
     const validPass = await bcrypt.compare(password, user.password);
     if (!validPass) throw new Error("Password invalid");
 
+    User.updateOne({_id:user._id}, {lastLogin: new Date()})
     if (process.env.TOKEN_SECRET) {
       const token = jsw.sign(
         { uid: user._id, company:user.company },

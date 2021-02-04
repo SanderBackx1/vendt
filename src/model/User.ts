@@ -12,6 +12,7 @@ export interface IUser {
   itemsUsed: number;
   msid?: string;
   company: string;
+  lastLogin?:Date;
 }
 
 export interface UserDocument extends IUser, Document {}
@@ -27,6 +28,7 @@ const UserSchema: Schema = new Schema({
   maxItems: { type: Number, required: true },
   password: { type: String, required: true },
   email: { type: String, required: true },
+  lastLogin: { type: Date, required: false },
 }, {timestamps:true});
 UserSchema.pre("remove", async function (next) {
   await QRInquiry.deleteMany({ user: this._id });
