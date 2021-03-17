@@ -31,7 +31,7 @@ class MachineController extends CrudController {
     if (fromCompany && !Types.ObjectId.isValid(fromCompany))
       throw new Error("fromCompany is not a validID");
 
-    const comp = await Company.findOne({ _id: company });
+    const comp = await Company.findOne({ _id: fromCompany || company });
     const { layout } = comp;
     if (!layout) throw new Error("layout is required");
     if (!isILayout(layout)) throw new Error("layout is invalid");

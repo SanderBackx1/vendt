@@ -5,6 +5,7 @@ import {
   writeInquiry,
   readInquiry,
   securedWithQuery,
+  createInquiry,
   secured,
   checkIfUpdate,
 } from "../../middleware";
@@ -35,6 +36,13 @@ router.get(
     }
   }
 );
+router.get("/guest", secured,createInquiry, async(req:Request, res:Response)=>{
+  try {
+    await inquiryController.createGuest(req, res);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+})
 router.post("/", async (req: Request, res: Response) => {
   try {
     await inquiryController.create(req, res);

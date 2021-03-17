@@ -91,8 +91,9 @@ class AlertController extends CrudController {
   public async tags(req: Request, res: Response) {
     const { user } = req.body;
     const company = user.company._id;
+    const { fromCompany } = req.query;
 
-    const alerts = await Alert.find({ company: company });
+    const alerts = await Alert.find({ company: fromCompany || company });
     let tagSet = new Set();
 
     alerts.forEach((alert: IAlert) => {
@@ -139,14 +140,14 @@ class AlertController extends CrudController {
       const { company } = req.body.user;
       const { fromCompany } = req.query;
       if (fromCompany == "all") {
-        const response = await Alert.find({})
+        const response = await Alert.find({});
         res.json(response);
       } else {
         if (fromCompany && !Types.ObjectId.isValid(fromCompany as string))
           throw new Error("fromCompany is not a valid id");
-        const response = await Alert.find(
-          { company: fromCompany || company._id },
-        )
+        const response = await Alert.find({
+          company: fromCompany || company._id,
+        });
         res.json(response);
       }
     } catch (err) {

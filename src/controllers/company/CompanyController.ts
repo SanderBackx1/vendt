@@ -24,11 +24,11 @@ class CompanyController extends CrudController {
     } = req.body.qry;
 
     if (!name) throw new Error("name is required");
-    if (!location) throw new Error("name is required");
-    if (!isILocation(location)) throw new Error("Location is not valid");
-    if (!ttl) throw new Error("name is required");
-    if (!layout) throw new Error("name is required");
-    if (!isILayout(layout)) throw new Error("Layout is not valid");
+    if (!location) throw new Error("location is required");
+    if (!isILocation(location)) throw new Error("location is not valid");
+    if (!ttl) throw new Error("ttl is required");
+    if (!layout) throw new Error("layout is required");
+    if (!isILayout(layout)) throw new Error("layout is not valid");
     if (!resetFrequency) throw new Error("resetFrequency not found");
 
     const newCompany: ICompany = {

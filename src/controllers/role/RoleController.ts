@@ -116,9 +116,15 @@ class RoleController extends CrudController {
   public async readAll(req: Request, res: Response) {
     const { fromCompany } = req.query;
     const { company } = req.body.user;
+    if(fromCompany =="all"){
+      const response = await Role.find({  });
+      res.json(response);
+    }
+    else{
 
-    const response = await Role.find({ company: fromCompany || company._id });
-    res.json(response);
+      const response = await Role.find({ company: fromCompany || company._id });
+      res.json(response);
+    }
   }
 }
 

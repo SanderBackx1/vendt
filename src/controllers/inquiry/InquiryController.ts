@@ -116,6 +116,25 @@ class InquiryController extends CrudController {
     const response = await QRInquiry.create(inquiry);
     res.json(response);
   }
+  public async createGuest(req:Request, res:Response){
+    if(!process.env.TOKEN_SECRET) throw new Error("Server error");
+    const {user} = req.body;
+    const {qr, ttl} = req.query
+    
+    const { company } = user;
+    if (!company && !ttl) throw new Error("Couldn't determine ttl");
+
+    const serverQr = crypto.randomBytes(5).toString("hex");
+
+    const inquiry: IQRInquiry = {
+      qrCode: qr as string || serverQr,
+      ttl: ttl || company.ttl,
+    };
+
+    const response = await QRInquiry.create(inquiry);
+    res.json(response);
+
+  }
 
   public async success(req: Request, res: Response) {
     const { machineId } = req.body;

@@ -353,6 +353,24 @@ export const hasRFID = async (
     res.status(401).json({ error: err.message });
   }
 };
+export const createInquiry = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const { role } = req.body.user;
+    if (
+      !role ||
+      !(role.permissions.inquiry == "read" || role.permissions.inquiry == "write")
+    ) {
+      throw new Error("User has no user read rights");
+    }
+    next();
+  } catch (err) {
+    res.status(401).json({ error: err.message });
+  }
+};
 export const securedWithQuery = [secured, hasQuery];
 export const securedMachineWithQuery = [securedMachine, hasQuery];
 export const securedMachineWithQueryHasRFID = [
